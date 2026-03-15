@@ -1,0 +1,35 @@
+#ifndef CTX_CONFIG_FORMATS
+#define CTX_CONFIG_FORMATS
+
+#include <stdio.h>
+#include <string.h>
+#include <sys/wait.h>
+#include <unistd.h>
+
+typedef enum { PAULI_MATRIX, HYPERGRAM, GRAPH } ctx_format;
+typedef enum { PAULI_X, PAULI_Y, PAULI_Z } pauli_operator;
+
+typedef struct {
+  pauli_operator **obs;
+} pauli_matrix;
+
+typedef struct {
+  int **obs;
+} hypergram;
+
+typedef struct {
+  int **matrix;
+} anticom_matrix;
+
+static const char ctx_format_to_qtxium[3][16] = {
+    [PAULI_MATRIX] = "assignment", [HYPERGRAM] = "hypergram", [GRAPH] = "gram"};
+
+static const ctx_format qtxium_to_ctx_format(const char *s) {
+  for (int i = 0; i <= GRAPH; i++) {
+    if (strcmp(s, ctx_format_to_qtxium[i]) == 0)
+      return (ctx_format)i;
+  }
+  return (ctx_format)-1;
+}
+
+#endif
