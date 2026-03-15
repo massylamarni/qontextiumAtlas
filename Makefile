@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -std=c11 -Wall -I./src
+CFLAGS = -std=c17 -Wall -I./src
 LDFLAGS =
 
 SRC_DIR = src

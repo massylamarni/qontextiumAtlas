@@ -4,7 +4,7 @@
 #define QONTEXTIUM_DIR "../../contextualityDegree"
 #define ATLAS_DIR "../qontextiumAtlas"
 #define BUFFER_SIZE 256
-#define ARGS_SIZE 128
+#define PATH_SIZE 64
 
 #include "ctx_config.h"
 

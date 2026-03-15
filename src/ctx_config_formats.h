@@ -24,12 +24,6 @@ typedef struct {
 static const char ctx_format_to_qtxium[3][16] = {
     [PAULI_MATRIX] = "assignment", [HYPERGRAM] = "hypergram", [GRAPH] = "gram"};
 
-static const ctx_format qtxium_to_ctx_format(const char *s) {
-  for (int i = 0; i <= GRAPH; i++) {
-    if (strcmp(s, ctx_format_to_qtxium[i]) == 0)
-      return (ctx_format)i;
-  }
-  return (ctx_format)-1;
-}
+const ctx_format qtxium_to_ctx_format(const char *s);
 
 #endif

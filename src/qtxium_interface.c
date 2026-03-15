@@ -1,4 +1,8 @@
+//#define _POSIX_C_SOURCE 200809L
+#define _GNU_SOURCE
+
 #include "qtxium_interface.h"
+#include <stdio.h>
 
 void parse_result(ctx_conf *ctx_conf_i, char *buffer) {
   if (strstr(buffer, "number of qubits:") != NULL) {
@@ -29,10 +33,14 @@ void init_interface(int argc, char *argv[]) {
   int pipefd[2];
   pipe(pipefd);
   char buffer[BUFFER_SIZE];
-  char qtxium_args[ARGS_SIZE];
-  ctx_conf ctx_conf_1;
-  strcpy(ctx_conf_1.file_name, argv[3]);
+  char *qtxium_args[5] = {"qontextium", NULL, NULL, NULL, NULL};
+
+  ctx_conf ctx_conf_1 = {0};
+  qtxium_args[1] = argv[1];
   ctx_conf_1.format = qtxium_to_ctx_format(argv[2]);
+  qtxium_args[2] = argv[2];
+  strncpy(ctx_conf_1.file_name, argv[3], sizeof(ctx_conf_1.file_name) - 1);
+  qtxium_args[3] = argv[3];
 
   pid_t pid = fork();
   if (pid == 0) {
@@ -42,12 +50,13 @@ void init_interface(int argc, char *argv[]) {
     close(pipefd[1]);
 
     chdir(QONTEXTIUM_DIR);
-    snprintf(qtxium_args, sizeof(qtxium_args), "%s %s %s/%s", argv[1], argv[2],
-             ATLAS_DIR, argv[3]);
-    printf("Executing cmd: ./qontextium %s\n", qtxium_args);
+    char file_path[256];
+    snprintf(file_path, sizeof(file_path), "%s/%s", ATLAS_DIR, argv[3]);
+
+    printf("Executing cmd: ./qontextium %s %s %s\n", qtxium_args[1], qtxium_args[2], file_path);
     fflush(stdout);
 
-    execl("./qontextium", "qontextium", qtxium_args, NULL);
+    execl("./qontextium", "qontextium", qtxium_args[1], qtxium_args[2], file_path, NULL);
     perror("exec failed");
     _exit(1);
   }
