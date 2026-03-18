@@ -26,4 +26,12 @@ static const char ctx_format_to_qtxium[3][16] = {
 
 const ctx_format qtxium_to_ctx_format(const char *s);
 
+/* TODO */
+
+void pauli_to_hypergram(pauli_matrix pm, hypergram hg);
+void hypergram_to_pauli(hypergram hg, pauli_matrix pm);
+void pauli_to_am(hypergram hg, anticom_matrix am);
+void hypergram_to_am(hypergram hg, anticom_matrix am);
+
+
 #endif

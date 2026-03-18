@@ -1,7 +1,7 @@
 #ifndef QTXIUM_INTERFACE
 #define QTXIUM_INTERFACE
 
-#define QONTEXTIUM_DIR "../../contextualityDegree"
+#define QONTEXTIUM_DIR "../contextualityDegree"
 #define ATLAS_DIR "../qontextiumAtlas"
 #define BUFFER_SIZE 256
 #define PATH_SIZE 64
