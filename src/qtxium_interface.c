@@ -1,8 +1,6 @@
-//#define _POSIX_C_SOURCE 200809L
+// #define _POSIX_C_SOURCE 200809L
 #define _GNU_SOURCE
-
 #include "qtxium_interface.h"
-#include <stdio.h>
 
 void parse_result(ctx_conf *ctx_conf_i, char *buffer) {
   if (strstr(buffer, "number of qubits:") != NULL) {
@@ -24,23 +22,15 @@ void parse_result(ctx_conf *ctx_conf_i, char *buffer) {
   }
 }
 
-void init_interface(int argc, char *argv[]) {
-  if (argc > 5) {
-    printf("Usage: %s <qtxium_args>\n", argv[0]);
-    _exit(1);
-  }
-
+ctx_conf exec_qtxium(char *file_name, char *format) {
   int pipefd[2];
   pipe(pipefd);
   char buffer[BUFFER_SIZE];
-  char *qtxium_args[5] = {"qontextium", NULL, NULL, NULL, NULL};
+  char *qtxium_args[5] = {"qontextium", "--import", format, file_name, NULL};
 
   ctx_conf ctx_conf_1 = {0};
-  qtxium_args[1] = argv[1];
-  ctx_conf_1.format = qtxium_to_ctx_format(argv[2]);
-  qtxium_args[2] = argv[2];
-  strncpy(ctx_conf_1.file_name, argv[3], sizeof(ctx_conf_1.file_name) - 1);
-  qtxium_args[3] = argv[3];
+  ctx_conf_1.format = qtxium_to_ctx_format(format);
+  strncpy(ctx_conf_1.file_name, file_name, sizeof(ctx_conf_1.file_name) - 1);
 
   pid_t pid = fork();
   if (pid == 0) {
@@ -51,12 +41,14 @@ void init_interface(int argc, char *argv[]) {
 
     chdir(QONTEXTIUM_DIR);
     char file_path[256];
-    snprintf(file_path, sizeof(file_path), "%s/%s", ATLAS_DIR, argv[3]);
+    snprintf(file_path, sizeof(file_path), "%s/%s", ATLAS_DIR, file_name);
 
-    printf("Executing cmd: ./qontextium %s %s %s\n", qtxium_args[1], qtxium_args[2], file_path);
+    printf("Executing cmd: ./qontextium %s %s %s\n", qtxium_args[1],
+           qtxium_args[2], file_path);
     fflush(stdout);
 
-    execl("./qontextium", "qontextium", qtxium_args[1], qtxium_args[2], file_path, NULL);
+    execl("./qontextium", qtxium_args[0], qtxium_args[1], qtxium_args[2],
+          file_path, NULL);
     perror("exec failed");
     _exit(1);
   }
@@ -68,8 +60,21 @@ void init_interface(int argc, char *argv[]) {
     parse_result(&ctx_conf_1, buffer);
   }
   fclose(stream);
-
-  print_ctx_conf(ctx_conf_1);
-
   wait(NULL);
+
+  return ctx_conf_1;
+}
+
+void init_interface(int argc, char *argv[]) {
+  if (argc != 3) {
+    printf("Usage: %s <format> <file_path>\n", argv[0]);
+    _exit(1);
+  }
+
+  ctx_conf ctx_conf_1 = exec_qtxium(argv[2], argv[1]);
+  if (is_ctx_conf_valid(ctx_conf_1)) {
+    print_ctx_conf(ctx_conf_1);
+  } else {
+    printf("Invalid config !\n");
+  }
 }

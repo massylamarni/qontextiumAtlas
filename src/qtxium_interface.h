@@ -8,6 +8,7 @@
 
 #include "ctx_config.h"
 
+ctx_conf exec_qtxium(char *file_name, char *format);
 void parse_result(ctx_conf *ctx_conf_i, char *buffer);
 void init_interface(int argc, char *argv[]);
 

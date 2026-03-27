@@ -32,10 +32,11 @@ typedef struct {
 } search_filters;
 
 void print_ctx_conf(ctx_conf ctx_conf_i);
+int is_file_valid(char *file_name);
+int is_ctx_conf_valid(ctx_conf ctx_conf_i);
 
 /* TODO */
 
-int is_valid(char* file_path);
 void search_ctx_configs(search_filters sf, pauli_matrix pm[128]);
 
 #endif
