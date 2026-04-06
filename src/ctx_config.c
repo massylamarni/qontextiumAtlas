@@ -267,3 +267,39 @@ void save_ctx_conf_info(const char *filename, const ctx_conf *conf) {
   }
 }
 
+pauli_matrix* load_ctx_configs(const char *dir_name, size_t *out_count) {
+  DIR *dir = opendir(dir_name);
+  if (!dir) return NULL;
+
+  pauli_matrix *list = NULL;
+  size_t count = 0;
+
+  struct dirent *entry;
+
+  while ((entry = readdir(dir)) != NULL) {
+    if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) continue;
+
+    // build path
+    char path[512];
+    snprintf(path, sizeof(path), "%s/%s", dir_name, entry->d_name);
+
+    pauli_matrix pm = load_ctx_config(path);
+
+    // check if valid
+    if (!pm.pauli_rows) continue;
+    pauli_matrix *tmp = realloc(list, (count + 1) * sizeof(pauli_matrix));
+
+    if (!tmp) {
+      free_pauli_matrix(&pm);
+      break;
+    }
+
+    list = tmp;
+    list[count++] = pm;
+  }
+
+  closedir(dir);
+
+  *out_count = count;
+  return list;
+}

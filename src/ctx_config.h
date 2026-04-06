@@ -8,6 +8,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdlib.h>
+#include <dirent.h>
+
 
 typedef struct {
   int id;
@@ -46,10 +48,10 @@ int load_json_file(const char *dir_name, cJSON **json);
 int save_json_file(const char *dir_name, cJSON *json);
 ctx_conf load_ctx_conf_info(const char *dir_name);
 void save_ctx_conf_info(const char *dir_name, const ctx_conf *conf);
+pauli_matrix* load_ctx_configs(const char *dir_name, size_t *out_count);
 
 /* TODO */
 
-pauli_matrix* load_ctx_configs(const char *dir_name);
 void search_ctx_configs(search_filters sf, pauli_matrix pm[128]);
 
 #endif
