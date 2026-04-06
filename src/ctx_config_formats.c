@@ -26,17 +26,17 @@ pauli_operator char_to_pauli(char c) {
   }
 }
 
-void print_pauli_matrix(pauli_matrix pm) {
-  for (size_t r = 0; r < pm.row_count; r++) {
-    for (size_t c = 0; c < pm.col_count; c++) {
-      pauli_row *ps = &pm.pauli_rows[r * pm.col_count + c];
+void fprint_pauli_matrix(FILE *f, const pauli_matrix *pm) {
+  for (size_t r = 0; r < pm->row_count; r++) {
+    for (size_t c = 0; c < pm->col_count; c++) {
+      pauli_row *ps = &pm->pauli_rows[r * pm->col_count + c];
       for (size_t q = 0; q < ps->n_qubits; q++) {
-        putchar(pauli_to_char(ps->ops[q]));
+        fputc(pauli_to_char(ps->ops[q]), f);
       }
-      if (c < pm.col_count - 1) {
-        putchar(',');
+      if (c < pm->col_count - 1) {
+        fputc(',', f);
       }
     }
-    putchar('\n');
+    fputc('\n', f);
   }
 }

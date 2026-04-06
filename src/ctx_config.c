@@ -173,6 +173,16 @@ int load_json_file(const char *filename, cJSON **json) {
   return 1;
 }
 
+void save_ctx_config(const char *dir_name, const pauli_matrix *pm) {
+  FILE *f = fopen(dir_name, "w");
+  if (!f) return;
+
+  fprint_pauli_matrix(f, pm);
+
+  fclose(f);
+}
+
+
 int save_json_file(const char *filename, cJSON *json) {
   if (!json) return 0;
 
