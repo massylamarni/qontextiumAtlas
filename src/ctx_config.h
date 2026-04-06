@@ -40,10 +40,10 @@ int is_ctx_conf_valid(ctx_conf ctx_conf_i);
 static int scan_dimension(const char *filename, size_t *row_count_p, size_t *col_count_p, size_t *n_qubits_p);
 pauli_matrix load_ctx_config(const char *dir_name);
 void free_pauli_matrix(pauli_matrix *m);
+ctx_conf load_ctx_conf_info(const char *dir_name);
 
 /* TODO */
 
-ctx_conf load_ctx_conf_info(const char *dir_name);
 pauli_matrix* load_ctx_configs(const char *dir_name);
 void search_ctx_configs(search_filters sf, pauli_matrix pm[128]);
 

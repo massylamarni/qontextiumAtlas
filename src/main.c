@@ -1,3 +1,4 @@
+#include "ctx_config.h"
 #include "ctx_config_formats.h"
 #include "qtxium_interface.h"
 
@@ -9,6 +10,8 @@ int main(int argc, char *argv[]) {
   if (pm.pauli_rows != NULL) {
     free_pauli_matrix(&pm);
   }
+
+  print_ctx_conf(load_ctx_conf_info("ctxs/ctx1.json"));
 
   return 0;
 }
