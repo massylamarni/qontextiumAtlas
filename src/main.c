@@ -9,9 +9,9 @@ int main(int argc, char *argv[]) {
   fprint_pauli_matrix(stdout, &pm);
   save_ctx_config("ctxs/new_ctx1.txt", &pm);
 
-  ctx_conf conf = load_ctx_conf_info("ctxs/ctx1.json");
+  ctx_conf conf = load_ctx_config_info("ctxs/ctx1.json");
   print_ctx_conf(conf);
-  save_ctx_conf_info("ctxs/new_ctx1.json", &conf);
+  save_ctx_config_info("ctxs/new_ctx1.json", &conf);
   free_pauli_matrix(&pm);
 
   size_t out_count = 0;
@@ -20,6 +20,12 @@ int main(int argc, char *argv[]) {
   for (int i = 0; i < out_count; i++) {
     printf("-------------------\n");
     fprint_pauli_matrix(stdout, &pms[i]);
+  }
+
+  ctx_conf *confs = load_ctx_configs_info("ctxs/jbatch", &out_count);
+  for (int i = 0; i < out_count; i++) {
+    printf("-------------------\n");
+    print_ctx_conf(confs[i]);
   }
 
   return 0;

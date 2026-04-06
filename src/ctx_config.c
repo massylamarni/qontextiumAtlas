@@ -204,7 +204,7 @@ int save_json_file(const char *filename, cJSON *json) {
   return 1;
 }
 
-ctx_conf load_ctx_conf_info(const char *filename) {
+ctx_conf load_ctx_config_info(const char *filename) {
   cJSON *json = NULL;
   if (!load_json_file(filename, &json)) return (ctx_conf){0};
   
@@ -245,7 +245,7 @@ ctx_conf load_ctx_conf_info(const char *filename) {
   return conf;
 }
 
-void save_ctx_conf_info(const char *filename, const ctx_conf *conf) {
+void save_ctx_config_info(const char *filename, const ctx_conf *conf) {
   cJSON *json = cJSON_CreateObject();
   if (!json) {
     fprintf(stderr, "Failed to create JSON object\n");
@@ -275,31 +275,48 @@ pauli_matrix* load_ctx_configs(const char *dir_name, size_t *out_count) {
   size_t count = 0;
 
   struct dirent *entry;
-
   while ((entry = readdir(dir)) != NULL) {
     if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) continue;
 
-    // build path
-    char path[512];
+    char path[512]; // build path
     snprintf(path, sizeof(path), "%s/%s", dir_name, entry->d_name);
 
     pauli_matrix pm = load_ctx_config(path);
 
-    // check if valid
-    if (!pm.pauli_rows) continue;
+    if (!pm.pauli_rows) continue; // check if valid
     pauli_matrix *tmp = realloc(list, (count + 1) * sizeof(pauli_matrix));
-
     if (!tmp) {
       free_pauli_matrix(&pm);
       break;
     }
-
     list = tmp;
     list[count++] = pm;
   }
-
   closedir(dir);
+  *out_count = count;
+  return list;
+}
 
+ctx_conf* load_ctx_configs_info(const char *dir_name, size_t *out_count) {
+  DIR *dir = opendir(dir_name);
+  if (!dir) return NULL;
+
+  ctx_conf *list = NULL;
+  size_t count = 0;
+
+  struct dirent *entry;
+  while ((entry = readdir(dir)) != NULL) {
+    if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) continue;
+
+    char path[512]; // build path
+    snprintf(path, sizeof(path), "%s/%s", dir_name, entry->d_name);
+
+    ctx_conf conf = load_ctx_config_info(path);
+    ctx_conf *tmp = realloc(list, (count + 1) * sizeof(ctx_conf));
+    list = tmp;
+    list[count++] = conf;
+  }
+  closedir(dir);
   *out_count = count;
   return list;
 }

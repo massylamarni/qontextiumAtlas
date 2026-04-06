@@ -46,9 +46,10 @@ void free_pauli_matrix(pauli_matrix *m);
 void save_ctx_config(const char *dir_name, const pauli_matrix *pm);
 int load_json_file(const char *dir_name, cJSON **json);
 int save_json_file(const char *dir_name, cJSON *json);
-ctx_conf load_ctx_conf_info(const char *dir_name);
-void save_ctx_conf_info(const char *dir_name, const ctx_conf *conf);
+ctx_conf load_ctx_config_info(const char *dir_name);
+void save_ctx_config_info(const char *dir_name, const ctx_conf *conf);
 pauli_matrix* load_ctx_configs(const char *dir_name, size_t *out_count);
+ctx_conf* load_ctx_configs_info(const char *dir_name, size_t *out_count);
 
 /* TODO */
 
