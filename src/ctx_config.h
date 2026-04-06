@@ -4,6 +4,7 @@
 #define FILE_NAME_SIZE 64
 
 #include "ctx_config_formats.h"
+#include "lib/cJSON.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdlib.h>
@@ -40,7 +41,10 @@ int is_ctx_conf_valid(ctx_conf ctx_conf_i);
 static int scan_dimension(const char *filename, size_t *row_count_p, size_t *col_count_p, size_t *n_qubits_p);
 pauli_matrix load_ctx_config(const char *dir_name);
 void free_pauli_matrix(pauli_matrix *m);
+int load_json_file(const char *filename, cJSON **json);
+int save_json_file(const char *filename, cJSON *json);
 ctx_conf load_ctx_conf_info(const char *dir_name);
+void save_ctx_conf_info(const char *filename, const ctx_conf *conf);
 
 /* TODO */
 

@@ -11,7 +11,9 @@ int main(int argc, char *argv[]) {
     free_pauli_matrix(&pm);
   }
 
-  print_ctx_conf(load_ctx_conf_info("ctxs/ctx1.json"));
+  ctx_conf conf = load_ctx_conf_info("ctxs/ctx1.json");
+  print_ctx_conf(conf);
+  save_ctx_conf_info("ctxs/new.json", &conf);
 
   return 0;
 }

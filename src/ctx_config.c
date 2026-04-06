@@ -1,7 +1,9 @@
 #define _GNU_SOURCE
+#include <stdio.h>
+#include <string.h>
+#include "lib/cJSON.h"
 #include "ctx_config.h"
 #include "qtxium_interface.h"
-#include "../lib/cJSON.h"
 
 void print_ctx_conf(ctx_conf ctx_conf_i) {
   printf("file_name: %s\n", ctx_conf_i.file_name);
@@ -151,9 +153,9 @@ void free_pauli_matrix(pauli_matrix *m) {
   free(m->pauli_rows);
 }
 
-ctx_conf load_ctx_conf_info(const char *filename) {
+int load_json_file(const char *filename, cJSON **json) {
   FILE *file = fopen(filename, "r");
-  if (!file) return (ctx_conf){0};
+  if (!file) return 0;
 
   fseek(file, 0, SEEK_END);
   long length = ftell(file);
@@ -164,30 +166,94 @@ ctx_conf load_ctx_conf_info(const char *filename) {
   data[length] = '\0';
   fclose(file);
 
-  cJSON *json = cJSON_Parse(data);
+  *json = cJSON_Parse(data);
   free(data);
 
-  if (!json) return (ctx_conf){0};
-  ctx_conf conf;
+  if (!*json) return 0;
+  return 1;
+}
 
-  strcpy(conf.file_name, cJSON_GetObjectItem(json, "file_name")->valuestring);
+int save_json_file(const char *filename, cJSON *json) {
+  if (!json) return 0;
+
+  char *string = cJSON_Print(json);
+
+  FILE *file = fopen(filename, "w");
+  if (!file) {
+    cJSON_Delete(json);
+    free(string);
+    return 0;
+  }
+
+  fputs(string, file);
+  fclose(file);
+
+  cJSON_Delete(json);
+  free(string);
+
+  return 1;
+}
+
+ctx_conf load_ctx_conf_info(const char *filename) {
+  cJSON *json = NULL;
+  if (!load_json_file(filename, &json)) return (ctx_conf){0};
   
-  conf.format = qtxium_to_ctx_format(cJSON_GetObjectItem(json, "format")->valuestring);
-
-  conf.qubits_count = cJSON_GetObjectItem(json, "qubits_count")->valueint;
-
-  conf.ctx_degree = cJSON_GetObjectItem(json, "ctx_degree")->valueint;
-
-  conf.ctx_count = cJSON_GetObjectItem(json, "ctx_count")->valueint;
-
-  conf.neg_ctx_count = cJSON_GetObjectItem(json, "neg_ctx_count")->valueint;
-
-  conf.best_hamming_distance = cJSON_GetObjectItem(json, "best_hamming_distance")->valueint;
-
+  ctx_conf conf = {0};
+  
+  cJSON *item = NULL;
+  
+  item = cJSON_GetObjectItem(json, "file_name");
+  if (item && item->valuestring) {
+    strncpy(conf.file_name, item->valuestring, sizeof(conf.file_name) - 1);
+  }
+  
+  item = cJSON_GetObjectItem(json, "format");
+  if (item && item->valuestring) {
+    conf.format = qtxium_to_ctx_format(item->valuestring);
+  }
+  
+  item = cJSON_GetObjectItem(json, "qubits_count");
+  if (item) conf.qubits_count = item->valueint;
+  
+  item = cJSON_GetObjectItem(json, "ctx_degree");
+  if (item) conf.ctx_degree = item->valueint;
+  
+  item = cJSON_GetObjectItem(json, "ctx_count");
+  if (item) conf.ctx_count = item->valueint;
+  
+  item = cJSON_GetObjectItem(json, "neg_ctx_count");
+  if (item) conf.neg_ctx_count = item->valueint;
+  
+  item = cJSON_GetObjectItem(json, "best_hamming_distance");
+  if (item) conf.best_hamming_distance = item->valueint;
+  
   conf.id = 0;
   conf.dimension = 0;
   conf.observable_count = 0;
-
+  
   cJSON_Delete(json);
   return conf;
 }
+
+void save_ctx_conf_info(const char *filename, const ctx_conf *conf) {
+  cJSON *json = cJSON_CreateObject();
+  if (!json) {
+    fprintf(stderr, "Failed to create JSON object\n");
+    return;
+  }
+  
+  cJSON_AddStringToObject(json, "file_name", conf->file_name);
+  cJSON_AddStringToObject(json, "format", ctx_format_to_qtxium[conf->format]);
+  cJSON_AddNumberToObject(json, "qubits_count", conf->qubits_count);
+  cJSON_AddNumberToObject(json, "ctx_degree", conf->ctx_degree);
+  cJSON_AddNumberToObject(json, "ctx_count", conf->ctx_count);
+  cJSON_AddNumberToObject(json, "neg_ctx_count", conf->neg_ctx_count);
+  cJSON_AddNumberToObject(json, "best_hamming_distance", conf->best_hamming_distance);
+  cJSON_AddNumberToObject(json, "dimension", conf->dimension);
+  cJSON_AddNumberToObject(json, "observable_count", conf->observable_count);
+  
+  if (!save_json_file(filename, json)) {
+    fprintf(stderr, "Error saving ctx config!\n");
+  }
+}
+
