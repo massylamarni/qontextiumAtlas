@@ -7,3 +7,36 @@ const ctx_format qtxium_to_ctx_format(const char *s) {
   }
   return (ctx_format)-1;
 }
+
+char pauli_to_char(pauli_operator op) {
+  switch (op) {
+    case PAULI_X: return 'X';
+    case PAULI_Y: return 'Y';
+    case PAULI_Z: return 'Z';
+    default: return '?';
+  }
+}
+
+pauli_operator char_to_pauli(char c) {
+  switch (c) {
+    case 'X': return PAULI_X;
+    case 'Y': return PAULI_Y;
+    case 'Z': return PAULI_Z;
+    default: return -1;
+  }
+}
+
+void print_pauli_matrix(pauli_matrix pm) {
+  for (size_t r = 0; r < pm.row_count; r++) {
+    for (size_t c = 0; c < pm.col_count; c++) {
+      pauli_row *ps = &pm.pauli_rows[r * pm.col_count + c];
+      for (size_t q = 0; q < ps->n_qubits; q++) {
+        putchar(pauli_to_char(ps->ops[q]));
+      }
+      if (c < pm.col_count - 1) {
+        putchar(',');
+      }
+    }
+    putchar('\n');
+  }
+}

@@ -38,6 +38,13 @@ ctx_conf exec_qtxium(char *file_name, char *format) {
     dup2(pipefd[1], STDOUT_FILENO); // redirect stdout to pipe
     dup2(pipefd[1], STDERR_FILENO); // redirect stderr to pipe
     close(pipefd[1]);
+    
+    // Redirect stdin to /dev/null to prevent blocking on input
+    int devnull = open("/dev/null", O_RDONLY);
+    if (devnull != -1) {
+      dup2(devnull, STDIN_FILENO);
+      close(devnull);
+    }
 
     chdir(QONTEXTIUM_DIR);
     char file_path[256];

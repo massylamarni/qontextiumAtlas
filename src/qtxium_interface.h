@@ -7,6 +7,7 @@
 #define PATH_SIZE 64
 
 #include "ctx_config.h"
+#include <fcntl.h>
 
 ctx_conf exec_qtxium(char *file_name, char *format);
 void parse_result(ctx_conf *ctx_conf_i, char *buffer);

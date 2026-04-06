@@ -1,1 +1,1 @@
-./build/o null assignment ctxs/ctx1.txt
+./build/o assignment ctxs/ctx1.txt
