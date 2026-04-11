@@ -135,21 +135,22 @@ void init_interface(int argc, char *argv[]) {
     if (out_count == 0) {
       printf("No results found !\n");
     } else {
+      printf("Found %lu config(s)\n", out_count);
       for (int i = 0; i < out_count; i++) {
         printf("-------------------\n");
         print_ctx_conf(configs_info[i]);
       }
     }
-    //  printf("Usage: %s get [<filter>=<min>:<max>...]\n", argv[0]);
-  } else if (argc != 3) {
-    printf("Usage: %s <format> <file_path>\n", argv[0]);
-    _exit(1);
-  }
-
-  ctx_conf ctx_conf_1 = exec_qtxium(argv[2], argv[1]);
-  if (is_ctx_conf_valid(ctx_conf_1)) {
-    print_ctx_conf(ctx_conf_1);
+  } else if (argc == 3) {
+    ctx_conf ctx_conf_1 = exec_qtxium(argv[2], argv[1]);
+    if (is_ctx_conf_valid(ctx_conf_1)) {
+      print_ctx_conf(ctx_conf_1);
+    } else {
+      printf("Invalid config !\n");
+    }
   } else {
-    printf("Invalid config !\n");
+    printf("Usage: %s <format> <file_path>\n", argv[0]);
+    printf("Or: %s get [<filter>=<min>:<max>...]\n", argv[0]);
+    _exit(1);
   }
 }

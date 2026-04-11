@@ -359,7 +359,7 @@ void search_ctx_configs(const char *dir_name, size_t *out_count, search_filters 
 
 #undef IN_RANGE
 
-  printf("Found %d config(s)\n", found);
+  *out_count = found;
   free(loaded_configs);
 }
 
