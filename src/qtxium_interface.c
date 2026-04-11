@@ -1,6 +1,60 @@
 // #define _POSIX_C_SOURCE 200809L
+#include "ctx_config.h"
+#include <stdio.h>
 #define _GNU_SOURCE
 #include "qtxium_interface.h"
+
+s_interval parse_interval(const char *s) {
+  s_interval iv = {-1, -1};
+  char *colon = strchr(s, ':');
+  if (colon) {
+    if (colon != s)
+      iv.min = atoi(s);
+    if (*(colon + 1) != '\0')
+      iv.max = atoi(colon + 1);
+  } else {
+    iv.min = iv.max = atoi(s);
+  }
+  return iv;
+}
+
+search_filters parse_search_filters(int argc, char *argv[]) {
+  search_filters sf = init_search_filters();
+
+  for (int i = 0; i < argc; i++) {
+    char *eq = strchr(argv[i], '=');
+    if (!eq) {
+      fprintf(stderr, "Ignored unknown arg: %s\n", argv[i]);
+      continue;
+    }
+
+    *eq = '\0'; /* split key / value in-place */
+    const char *key = argv[i];
+    const char *val = eq + 1;
+
+    if (!strcmp(key, "id"))
+      sf.id = atoi(val);
+    else if (!strcmp(key, "qubits_count"))
+      sf.qubits_count = parse_interval(val);
+    else if (!strcmp(key, "ctx_degree"))
+      sf.ctx_degree = parse_interval(val);
+    else if (!strcmp(key, "ctx_count"))
+      sf.ctx_count = parse_interval(val);
+    else if (!strcmp(key, "neg_ctx_count"))
+      sf.neg_ctx_count = parse_interval(val);
+    else if (!strcmp(key, "best_hamming_distance"))
+      sf.best_hamming_distance = parse_interval(val);
+    else if (!strcmp(key, "dimension"))
+      sf.dimension = parse_interval(val);
+    else if (!strcmp(key, "observable_count"))
+      sf.observable_count = parse_interval(val);
+    else
+      fprintf(stderr, "Unknown filter key: %s\n", key);
+
+    *eq = '='; /* restore argv */
+  }
+  return sf;
+}
 
 void parse_result(ctx_conf *ctx_conf_i, char *buffer) {
   if (strstr(buffer, "number of qubits:") != NULL) {
@@ -38,7 +92,7 @@ ctx_conf exec_qtxium(char *file_name, char *format) {
     dup2(pipefd[1], STDOUT_FILENO); // redirect stdout to pipe
     dup2(pipefd[1], STDERR_FILENO); // redirect stderr to pipe
     close(pipefd[1]);
-    
+
     // Redirect stdin to /dev/null to prevent blocking on input
     int devnull = open("/dev/null", O_RDONLY);
     if (devnull != -1) {
@@ -73,7 +127,21 @@ ctx_conf exec_qtxium(char *file_name, char *format) {
 }
 
 void init_interface(int argc, char *argv[]) {
-  if (argc != 3) {
+  if (argc >= 2 && strcmp(argv[1], "get") == 0) {
+    search_filters sf = parse_search_filters(argc - 2, argv + 2);
+    ctx_conf configs_info[128] = {0};
+    size_t out_count = 0;
+    search_ctx_configs("ctxs/jbatch", &out_count, sf, configs_info);
+    if (out_count == 0) {
+      printf("No results found !\n");
+    } else {
+      for (int i = 0; i < out_count; i++) {
+        printf("-------------------\n");
+        print_ctx_conf(configs_info[i]);
+      }
+    }
+    //  printf("Usage: %s get [<filter>=<min>:<max>...]\n", argv[0]);
+  } else if (argc != 3) {
     printf("Usage: %s <format> <file_path>\n", argv[0]);
     _exit(1);
   }

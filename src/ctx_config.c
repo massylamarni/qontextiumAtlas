@@ -1,9 +1,9 @@
 #define _GNU_SOURCE
+#include "ctx_config.h"
+#include "lib/cJSON.h"
+#include "qtxium_interface.h"
 #include <stdio.h>
 #include <string.h>
-#include "lib/cJSON.h"
-#include "ctx_config.h"
-#include "qtxium_interface.h"
 
 void print_ctx_conf(ctx_conf ctx_conf_i) {
   printf("file_name: %s\n", ctx_conf_i.file_name);
@@ -155,7 +155,8 @@ void free_pauli_matrix(pauli_matrix *m) {
 
 int load_json_file(const char *filename, cJSON **json) {
   FILE *file = fopen(filename, "r");
-  if (!file) return 0;
+  if (!file)
+    return 0;
 
   fseek(file, 0, SEEK_END);
   long length = ftell(file);
@@ -169,22 +170,24 @@ int load_json_file(const char *filename, cJSON **json) {
   *json = cJSON_Parse(data);
   free(data);
 
-  if (!*json) return 0;
+  if (!*json)
+    return 0;
   return 1;
 }
 
 void save_ctx_config(const char *dir_name, const pauli_matrix *pm) {
   FILE *f = fopen(dir_name, "w");
-  if (!f) return;
+  if (!f)
+    return;
 
   fprint_pauli_matrix(f, pm);
 
   fclose(f);
 }
 
-
 int save_json_file(const char *filename, cJSON *json) {
-  if (!json) return 0;
+  if (!json)
+    return 0;
 
   char *string = cJSON_Print(json);
 
@@ -206,41 +209,47 @@ int save_json_file(const char *filename, cJSON *json) {
 
 ctx_conf load_ctx_config_info(const char *filename) {
   cJSON *json = NULL;
-  if (!load_json_file(filename, &json)) return (ctx_conf){0};
-  
+  if (!load_json_file(filename, &json))
+    return (ctx_conf){0};
+
   ctx_conf conf = {0};
-  
+
   cJSON *item = NULL;
-  
+
   item = cJSON_GetObjectItem(json, "file_name");
   if (item && item->valuestring) {
     strncpy(conf.file_name, item->valuestring, sizeof(conf.file_name) - 1);
   }
-  
+
   item = cJSON_GetObjectItem(json, "format");
   if (item && item->valuestring) {
     conf.format = qtxium_to_ctx_format(item->valuestring);
   }
-  
+
   item = cJSON_GetObjectItem(json, "qubits_count");
-  if (item) conf.qubits_count = item->valueint;
-  
+  if (item)
+    conf.qubits_count = item->valueint;
+
   item = cJSON_GetObjectItem(json, "ctx_degree");
-  if (item) conf.ctx_degree = item->valueint;
-  
+  if (item)
+    conf.ctx_degree = item->valueint;
+
   item = cJSON_GetObjectItem(json, "ctx_count");
-  if (item) conf.ctx_count = item->valueint;
-  
+  if (item)
+    conf.ctx_count = item->valueint;
+
   item = cJSON_GetObjectItem(json, "neg_ctx_count");
-  if (item) conf.neg_ctx_count = item->valueint;
-  
+  if (item)
+    conf.neg_ctx_count = item->valueint;
+
   item = cJSON_GetObjectItem(json, "best_hamming_distance");
-  if (item) conf.best_hamming_distance = item->valueint;
-  
+  if (item)
+    conf.best_hamming_distance = item->valueint;
+
   conf.id = 0;
   conf.dimension = 0;
   conf.observable_count = 0;
-  
+
   cJSON_Delete(json);
   return conf;
 }
@@ -251,39 +260,43 @@ void save_ctx_config_info(const char *filename, const ctx_conf *conf) {
     fprintf(stderr, "Failed to create JSON object\n");
     return;
   }
-  
+
   cJSON_AddStringToObject(json, "file_name", conf->file_name);
   cJSON_AddStringToObject(json, "format", ctx_format_to_qtxium[conf->format]);
   cJSON_AddNumberToObject(json, "qubits_count", conf->qubits_count);
   cJSON_AddNumberToObject(json, "ctx_degree", conf->ctx_degree);
   cJSON_AddNumberToObject(json, "ctx_count", conf->ctx_count);
   cJSON_AddNumberToObject(json, "neg_ctx_count", conf->neg_ctx_count);
-  cJSON_AddNumberToObject(json, "best_hamming_distance", conf->best_hamming_distance);
+  cJSON_AddNumberToObject(json, "best_hamming_distance",
+                          conf->best_hamming_distance);
   cJSON_AddNumberToObject(json, "dimension", conf->dimension);
   cJSON_AddNumberToObject(json, "observable_count", conf->observable_count);
-  
+
   if (!save_json_file(filename, json)) {
     fprintf(stderr, "Error saving ctx config!\n");
   }
 }
 
-pauli_matrix* load_ctx_configs(const char *dir_name, size_t *out_count) {
+pauli_matrix *load_ctx_configs(const char *dir_name, size_t *out_count) {
   DIR *dir = opendir(dir_name);
-  if (!dir) return NULL;
+  if (!dir)
+    return NULL;
 
   pauli_matrix *list = NULL;
   size_t count = 0;
 
   struct dirent *entry;
   while ((entry = readdir(dir)) != NULL) {
-    if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) continue;
+    if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
+      continue;
 
     char path[512]; // build path
     snprintf(path, sizeof(path), "%s/%s", dir_name, entry->d_name);
 
     pauli_matrix pm = load_ctx_config(path);
 
-    if (!pm.pauli_rows) continue; // check if valid
+    if (!pm.pauli_rows)
+      continue; // check if valid
     pauli_matrix *tmp = realloc(list, (count + 1) * sizeof(pauli_matrix));
     if (!tmp) {
       free_pauli_matrix(&pm);
@@ -297,16 +310,18 @@ pauli_matrix* load_ctx_configs(const char *dir_name, size_t *out_count) {
   return list;
 }
 
-ctx_conf* load_ctx_configs_info(const char *dir_name, size_t *out_count) {
+ctx_conf *load_ctx_configs_info(const char *dir_name, size_t *out_count) {
   DIR *dir = opendir(dir_name);
-  if (!dir) return NULL;
+  if (!dir)
+    return NULL;
 
   ctx_conf *list = NULL;
   size_t count = 0;
 
   struct dirent *entry;
   while ((entry = readdir(dir)) != NULL) {
-    if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) continue;
+    if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
+      continue;
 
     char path[512]; // build path
     snprintf(path, sizeof(path), "%s/%s", dir_name, entry->d_name);
@@ -319,4 +334,45 @@ ctx_conf* load_ctx_configs_info(const char *dir_name, size_t *out_count) {
   closedir(dir);
   *out_count = count;
   return list;
+}
+
+void search_ctx_configs(const char *dir_name, size_t *out_count, search_filters sf, ctx_conf configs_info[128]) {
+  ctx_conf *loaded_configs = load_ctx_configs_info(dir_name, out_count);
+
+#define IN_RANGE(val, interval)                                                \
+  ((interval).min == -1 || (val) >= (interval).min) &&                         \
+      ((interval).max == -1 || (val) <= (interval).max)
+
+  int found = 0;
+  for (size_t i = 0; i < *out_count && found < 128; i++) {
+    ctx_conf *c = &loaded_configs[i];
+    if (IN_RANGE(c->qubits_count, sf.qubits_count) &&
+        IN_RANGE(c->ctx_degree, sf.ctx_degree) &&
+        IN_RANGE(c->ctx_count, sf.ctx_count) &&
+        IN_RANGE(c->neg_ctx_count, sf.neg_ctx_count) &&
+        IN_RANGE(c->best_hamming_distance, sf.best_hamming_distance) &&
+        IN_RANGE(c->dimension, sf.dimension) &&
+        IN_RANGE(c->observable_count, sf.observable_count)) {
+      configs_info[found++] = *c;
+    }
+  }
+
+#undef IN_RANGE
+
+  printf("Found %d config(s)\n", found);
+  free(loaded_configs);
+}
+
+search_filters init_search_filters() {
+  search_filters sf = {
+    .id = -1,
+    .qubits_count = {-1, -1},
+    .ctx_degree = {-1, -1},
+    .ctx_count = {-1, -1},
+    .neg_ctx_count = {-1, -1},
+    .best_hamming_distance = {-1, -1},
+    .dimension = {-1, -1},
+    .observable_count = {-1, -1},
+  };
+  return sf;
 }

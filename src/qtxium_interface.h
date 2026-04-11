@@ -9,6 +9,8 @@
 #include "ctx_config.h"
 #include <fcntl.h>
 
+s_interval parse_interval(const char *s);
+search_filters parse_search_filters(int argc, char *argv[]);
 ctx_conf exec_qtxium(char *file_name, char *format);
 void parse_result(ctx_conf *ctx_conf_i, char *buffer);
 void init_interface(int argc, char *argv[]);

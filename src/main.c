@@ -22,10 +22,10 @@ int main(int argc, char *argv[]) {
     fprint_pauli_matrix(stdout, &pms[i]);
   }
 
-  ctx_conf *confs = load_ctx_configs_info("ctxs/jbatch", &out_count);
+  ctx_conf *configs_info = load_ctx_configs_info("ctxs/jbatch", &out_count);
   for (int i = 0; i < out_count; i++) {
     printf("-------------------\n");
-    print_ctx_conf(confs[i]);
+    print_ctx_conf(configs_info[i]);
   }
 
   return 0;
