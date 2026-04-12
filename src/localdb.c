@@ -1,4 +1,8 @@
+// #define _POSIX_C_SOURCE 200809L
+#define _GNU_SOURCE
 #include "localdb.h"
+#include <stdio.h>
+#include <errno.h>
 
 pauli_matrix load_ctx_config(const char *filename) {
   size_t row_count, col_count, n_qubits;
@@ -82,8 +86,10 @@ pauli_matrix *load_ctx_configs(const char *dir_name, size_t *out_count,
                                const char **file_names,
                                size_t file_names_count) {
   DIR *dir = opendir(dir_name);
-  if (!dir)
+  if (!dir) {
+    fprintf(stderr, "opendir failed for %s: %s\n", dir_name, strerror(errno));
     return NULL;
+  }
 
   pauli_matrix *list = NULL;
   size_t count = 0;
@@ -208,4 +214,8 @@ void save_ctx_config_info(const char *filename, const ctx_conf_info *conf) {
   if (!save_json_file(filename, json))
     fprintf(stderr, "Error saving ctx config!\n");
   cJSON_Delete(json);
+}
+
+unsigned int get_new_id() {
+  return 0;
 }

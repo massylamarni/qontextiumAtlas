@@ -146,32 +146,3 @@ ctx_conf_info exec_qtxium(const char *file_name, char *format) {
 
   return ctx_conf_1;
 }
-
-void init_interface(int argc, char *argv[]) {
-  if (argc >= 2 && strcmp(argv[1], "get") == 0) {
-    search_filters sf = parse_search_filters(argc - 2, argv + 2);
-    ctx_conf_info configs_info[128] = {0};
-    size_t out_count = 0;
-    search_ctx_configs_info("ctxs/jbatch", &out_count, sf, configs_info);
-    if (out_count == 0) {
-      printf("No results found !\n");
-    } else {
-      printf("Found %lu config(s)\n", out_count);
-      for (int i = 0; i < out_count; i++) {
-        printf("-------------------\n");
-        print_ctx_conf_info(configs_info[i]);
-      }
-    }
-  } else if (argc == 3) {
-    ctx_conf_info ctx_conf_1 = exec_qtxium(argv[2], argv[1]);
-    if (is_ctx_conf_valid(ctx_conf_1)) {
-      print_ctx_conf_info(ctx_conf_1);
-    } else {
-      printf("Invalid config !\n");
-    }
-  } else {
-    printf("Usage: %s <format> <file_path>\n", argv[0]);
-    printf("Or: %s get [<filter>=<min>:<max>...]\n", argv[0]);
-    _exit(1);
-  }
-}

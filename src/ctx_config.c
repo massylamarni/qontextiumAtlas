@@ -1,6 +1,7 @@
 #include "ctx_config.h"
 #include "localdb.h"
 #include "qtxium_interface.h"
+#include <stdio.h>
 
 
 /* Private */
@@ -114,7 +115,7 @@ void search_ctx_configs(const char *dir_name, size_t *out_count,
     file_names[i] = configs_info[i].file_name;
   }
   size_t loaded_count = 0;
-  pms = load_ctx_configs("ctxs/batch", &loaded_count, (const char **)file_names, *out_count);
+  pms = load_ctx_configs(CTX_CONF_DIR, &loaded_count, (const char **)file_names, *out_count);
   if (loaded_count != *out_count) printf("Error loading all configurations !\n");
 }
 
@@ -206,15 +207,3 @@ int is_ctx_conf_valid(ctx_conf_info conf_info) {
 }
 
 void is_ctx_config_present();
-// Pass INT_MAX and INT_MIN in cmdline
-/*
-(base_commande) --import assignment path --meta_data --add
-–import assignment path : importer un fichier de configuration.
-–import assignment path –meta_data : afficher toutes les métadonnées du fichier.
-–import assignment path –add : ajouter la configuration au système.
-–import assignment path –deg : afficher le degré de contextualité
-–import assignment path –nc : afficher le nombre de contextes.
-–import assignment path –nn : afficher le nombre de contextes négatifs.
-–import assignment path –no : afficher le nombre d’observables.
-–import assignment path –dim : afficher le nombre de qubits.
-*/

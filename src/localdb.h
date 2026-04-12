@@ -15,6 +15,7 @@ void save_ctx_config(const char *dir_name, const pauli_matrix *pm);
 ctx_conf_info load_ctx_config_info(const char *dir_name);
 ctx_conf_info *load_ctx_configs_info(const char *dir_name, size_t *out_count);
 void save_ctx_config_info(const char *dir_name, const ctx_conf_info *conf);
+unsigned int get_new_id();
 
 /* TODO */
 void delete_ctx_configs(unsigned int *ids);
