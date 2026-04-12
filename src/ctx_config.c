@@ -5,14 +5,16 @@
 #include <stdio.h>
 #include <string.h>
 
-void print_ctx_conf(ctx_conf ctx_conf_i) {
-  printf("file_name: %s\n", ctx_conf_i.file_name);
-  printf("format: %s\n", ctx_format_to_qtxium[ctx_conf_i.format]);
-  printf("qubits_count: %i\n", ctx_conf_i.qubits_count);
-  printf("ctx_degree: %i\n", ctx_conf_i.ctx_degree);
-  printf("ctx_count: %i\n", ctx_conf_i.ctx_count);
-  printf("neg_ctx_count: %i\n", ctx_conf_i.neg_ctx_count);
-  printf("best_hamming_distance: %i\n", ctx_conf_i.best_hamming_distance);
+void print_ctx_conf(ctx_conf c) {
+    printf("format: %s\n", ctx_format_to_qtxium[c.format]);
+
+#define X(kind, type, name) _X_##kind(name)
+#define _X_INT(name) printf(#name ": %d\n", c.name);
+#define _X_STR(name) printf(#name ": %s\n", c.name);
+#include "ctx_config_dynamic_attr.def"
+#undef X
+#undef _X_INT
+#undef _X_STR
 }
 
 int is_file_valid(char *file_name) {
@@ -23,7 +25,7 @@ int is_ctx_conf_valid(ctx_conf ctx_conf_i) {
   return ctx_conf_i.ctx_degree != 0;
 }
 
-static int scan_dimension(const char *filename, size_t *row_count_p,
+int scan_dimension(const char *filename, size_t *row_count_p,
                           size_t *col_count_p, size_t *n_qubits_p) {
   FILE *f = fopen(filename, "r");
   if (!f) {
@@ -208,73 +210,49 @@ int save_json_file(const char *filename, cJSON *json) {
 }
 
 ctx_conf load_ctx_config_info(const char *filename) {
-  cJSON *json = NULL;
-  if (!load_json_file(filename, &json))
-    return (ctx_conf){0};
+    cJSON *json = NULL;
+    if (!load_json_file(filename, &json)) return (ctx_conf){0};
 
-  ctx_conf conf = {0};
+    ctx_conf conf = {0};
+    cJSON *item = NULL;
 
-  cJSON *item = NULL;
+    item = cJSON_GetObjectItem(json, "format");
+    if (item && item->valuestring)
+        conf.format = qtxium_to_ctx_format(item->valuestring);
 
-  item = cJSON_GetObjectItem(json, "file_name");
-  if (item && item->valuestring) {
-    strncpy(conf.file_name, item->valuestring, sizeof(conf.file_name) - 1);
-  }
+#define X(kind, type, name) _X_##kind(name)
+#define _X_INT(name) \
+    item = cJSON_GetObjectItem(json, #name); \
+    if (item) conf.name = item->valueint;
+#define _X_STR(name) \
+    item = cJSON_GetObjectItem(json, #name); \
+    if (item && item->valuestring) \
+        strncpy(conf.name, item->valuestring, sizeof(conf.name) - 1);
+#include "ctx_config_dynamic_attr.def"
+#undef X
+#undef _X_INT
+#undef _X_STR
 
-  item = cJSON_GetObjectItem(json, "format");
-  if (item && item->valuestring) {
-    conf.format = qtxium_to_ctx_format(item->valuestring);
-  }
-
-  item = cJSON_GetObjectItem(json, "qubits_count");
-  if (item)
-    conf.qubits_count = item->valueint;
-
-  item = cJSON_GetObjectItem(json, "ctx_degree");
-  if (item)
-    conf.ctx_degree = item->valueint;
-
-  item = cJSON_GetObjectItem(json, "ctx_count");
-  if (item)
-    conf.ctx_count = item->valueint;
-
-  item = cJSON_GetObjectItem(json, "neg_ctx_count");
-  if (item)
-    conf.neg_ctx_count = item->valueint;
-
-  item = cJSON_GetObjectItem(json, "best_hamming_distance");
-  if (item)
-    conf.best_hamming_distance = item->valueint;
-
-  conf.id = 0;
-  conf.dimension = 0;
-  conf.observable_count = 0;
-
-  cJSON_Delete(json);
-  return conf;
+    cJSON_Delete(json);
+    return conf;
 }
 
 void save_ctx_config_info(const char *filename, const ctx_conf *conf) {
-  cJSON *json = cJSON_CreateObject();
-  if (!json) {
-    fprintf(stderr, "Failed to create JSON object\n");
-    return;
-  }
+    cJSON *json = cJSON_CreateObject();
 
-  cJSON_AddStringToObject(json, "file_name", conf->file_name);
-  cJSON_AddStringToObject(json, "format", ctx_format_to_qtxium[conf->format]);
-  cJSON_AddNumberToObject(json, "qubits_count", conf->qubits_count);
-  cJSON_AddNumberToObject(json, "ctx_degree", conf->ctx_degree);
-  cJSON_AddNumberToObject(json, "ctx_count", conf->ctx_count);
-  cJSON_AddNumberToObject(json, "neg_ctx_count", conf->neg_ctx_count);
-  cJSON_AddNumberToObject(json, "best_hamming_distance",
-                          conf->best_hamming_distance);
-  cJSON_AddNumberToObject(json, "dimension", conf->dimension);
-  cJSON_AddNumberToObject(json, "observable_count", conf->observable_count);
+    cJSON_AddStringToObject(json, "format", ctx_format_to_qtxium[conf->format]);
 
-  if (!save_json_file(filename, json)) {
-    fprintf(stderr, "Error saving ctx config!\n");
-  }
+#define X(kind, type, name) _X_##kind(name)
+#define _X_INT(name) cJSON_AddNumberToObject(json, #name, conf->name);
+#define _X_STR(name) cJSON_AddStringToObject(json, #name, conf->name);
+#include "ctx_config_dynamic_attr.def"
+#undef X
+#undef _X_INT
+#undef _X_STR
+
+    if (!save_json_file(filename, json))
+        fprintf(stderr, "Error saving ctx config!\n");
+    cJSON_Delete(json);
 }
 
 pauli_matrix *load_ctx_configs(const char *dir_name, size_t *out_count) {
@@ -346,15 +324,17 @@ void search_ctx_configs(const char *dir_name, size_t *out_count, search_filters 
   int found = 0;
   for (size_t i = 0; i < *out_count && found < 128; i++) {
     ctx_conf *c = &loaded_configs[i];
-    if (IN_RANGE(c->qubits_count, sf.qubits_count) &&
-        IN_RANGE(c->ctx_degree, sf.ctx_degree) &&
-        IN_RANGE(c->ctx_count, sf.ctx_count) &&
-        IN_RANGE(c->neg_ctx_count, sf.neg_ctx_count) &&
-        IN_RANGE(c->best_hamming_distance, sf.best_hamming_distance) &&
-        IN_RANGE(c->dimension, sf.dimension) &&
-        IN_RANGE(c->observable_count, sf.observable_count)) {
-      configs_info[found++] = *c;
-    }
+    if (1
+#define X(kind, type, name) && _X_##kind(name)
+#define _X_INT(name) IN_RANGE(c->name, sf.name)
+#define _X_STR(name) (sf.name[0] == '\0' || strcmp(c->name, sf.name) == 0)
+#include "ctx_config_dynamic_attr.def"
+#undef X
+#undef _X_INT
+#undef _X_STR
+) {
+    configs_info[found++] = *c;
+}
   }
 
 #undef IN_RANGE
@@ -364,15 +344,15 @@ void search_ctx_configs(const char *dir_name, size_t *out_count, search_filters 
 }
 
 search_filters init_search_filters() {
-  search_filters sf = {
-    .id = -1,
-    .qubits_count = {-1, -1},
-    .ctx_degree = {-1, -1},
-    .ctx_count = {-1, -1},
-    .neg_ctx_count = {-1, -1},
-    .best_hamming_distance = {-1, -1},
-    .dimension = {-1, -1},
-    .observable_count = {-1, -1},
-  };
-  return sf;
+    search_filters sf = {0};
+
+#define X(kind, type, name) _X_##kind(name)
+#define _X_INT(name) sf.name = (s_interval){-1, -1};
+#define _X_STR(name) sf.name[0] = '\0';
+#include "ctx_config_dynamic_attr.def"
+#undef X
+#undef _X_INT
+#undef _X_STR
+
+    return sf;
 }

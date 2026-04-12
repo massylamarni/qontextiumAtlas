@@ -1,0 +1,8 @@
+X(INT, int,  qubits_count)
+X(INT, int,  ctx_degree)
+X(INT, int,  ctx_count)
+X(INT, int,  neg_ctx_count)
+X(INT, int,  best_hamming_distance)
+X(INT, int,  dimension)
+X(INT, int,  observable_count)
+X(STR, char, author_name)

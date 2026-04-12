@@ -34,21 +34,16 @@ search_filters parse_search_filters(int argc, char *argv[]) {
 
     if (!strcmp(key, "id"))
       sf.id = atoi(val);
-    else if (!strcmp(key, "qubits_count"))
-      sf.qubits_count = parse_interval(val);
-    else if (!strcmp(key, "ctx_degree"))
-      sf.ctx_degree = parse_interval(val);
-    else if (!strcmp(key, "ctx_count"))
-      sf.ctx_count = parse_interval(val);
-    else if (!strcmp(key, "neg_ctx_count"))
-      sf.neg_ctx_count = parse_interval(val);
-    else if (!strcmp(key, "best_hamming_distance"))
-      sf.best_hamming_distance = parse_interval(val);
-    else if (!strcmp(key, "dimension"))
-      sf.dimension = parse_interval(val);
-    else if (!strcmp(key, "observable_count"))
-      sf.observable_count = parse_interval(val);
-    else
+#define X(kind, type, name) _X_##kind(name)
+#define _X_INT(name) \
+    else if (!strcmp(key, #name)) sf.name = parse_interval(val);
+#define _X_STR(name) \
+    else if (!strcmp(key, #name)) strncpy(sf.name, val, sizeof(sf.name) - 1);
+#include "ctx_config_dynamic_attr.def"
+#undef X
+#undef _X_INT
+#undef _X_STR
+      else
       fprintf(stderr, "Unknown filter key: %s\n", key);
 
     *eq = '='; /* restore argv */
