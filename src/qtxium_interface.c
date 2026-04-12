@@ -1,21 +1,46 @@
 // #define _POSIX_C_SOURCE 200809L
-#include "ctx_config.h"
-#include <stdio.h>
 #define _GNU_SOURCE
 #include "qtxium_interface.h"
+#include "ctx_config.h"
+#include <limits.h>
+#include <stdio.h>
 
-s_interval parse_interval(const char *s) {
-  s_interval iv = {-1, -1};
-  char *colon = strchr(s, ':');
-  if (colon) {
-    if (colon != s)
-      iv.min = atoi(s);
-    if (*(colon + 1) != '\0')
-      iv.max = atoi(colon + 1);
-  } else {
-    iv.min = iv.max = atoi(s);
+s_interval parse_interval(const char *val) {
+  s_interval interval = {-1, -1};
+
+  char *colon = strchr(val, ':');
+  if (!colon) {
+    // min == max
+    interval.min = atoi(val);
+    interval.max = interval.min;
+    return interval;
   }
-  return iv;
+
+  char min_str[32], max_str[32];
+  size_t min_len = colon - val;
+  strncpy(min_str, val, min_len);
+  min_str[min_len] = '\0';
+  strncpy(max_str, colon + 1, sizeof(max_str) - 1);
+
+  if (min_str[0] == '\0')
+    interval.min = -1;
+  else if (min_str[0] == '-')
+    interval.min = INT_MIN;
+  else if (min_str[0] == '+')
+    interval.min = INT_MAX;
+  else
+    interval.min = atoi(min_str);
+
+  if (max_str[0] == '\0')
+    interval.max = -1;
+  else if (max_str[0] == '+')
+    interval.max = INT_MAX;
+  else if (max_str[0] == '-')
+    interval.max = INT_MIN;
+  else
+    interval.max = atoi(max_str);
+
+  return interval;
 }
 
 search_filters parse_search_filters(int argc, char *argv[]) {
@@ -51,7 +76,7 @@ search_filters parse_search_filters(int argc, char *argv[]) {
   return sf;
 }
 
-void parse_result(ctx_conf *ctx_conf_i, char *buffer) {
+void parse_result(ctx_conf_info *ctx_conf_i, char *buffer) {
   if (strstr(buffer, "number of qubits:") != NULL) {
     sscanf(buffer, " number of qubits: %d", &ctx_conf_i->qubits_count);
   }
@@ -71,13 +96,14 @@ void parse_result(ctx_conf *ctx_conf_i, char *buffer) {
   }
 }
 
-ctx_conf exec_qtxium(char *file_name, char *format) {
+ctx_conf_info exec_qtxium(const char *file_name, char *format) {
   int pipefd[2];
   pipe(pipefd);
   char buffer[BUFFER_SIZE];
-  char *qtxium_args[5] = {"qontextium", "--import", format, file_name, NULL};
+  const char *qtxium_args[5] = {"qontextium", "--import", format, file_name,
+                                NULL};
 
-  ctx_conf ctx_conf_1 = {0};
+  ctx_conf_info ctx_conf_1 = {0};
   ctx_conf_1.format = qtxium_to_ctx_format(format);
   strncpy(ctx_conf_1.file_name, file_name, sizeof(ctx_conf_1.file_name) - 1);
 
@@ -124,22 +150,22 @@ ctx_conf exec_qtxium(char *file_name, char *format) {
 void init_interface(int argc, char *argv[]) {
   if (argc >= 2 && strcmp(argv[1], "get") == 0) {
     search_filters sf = parse_search_filters(argc - 2, argv + 2);
-    ctx_conf configs_info[128] = {0};
+    ctx_conf_info configs_info[128] = {0};
     size_t out_count = 0;
-    search_ctx_configs("ctxs/jbatch", &out_count, sf, configs_info);
+    search_ctx_configs_info("ctxs/jbatch", &out_count, sf, configs_info);
     if (out_count == 0) {
       printf("No results found !\n");
     } else {
       printf("Found %lu config(s)\n", out_count);
       for (int i = 0; i < out_count; i++) {
         printf("-------------------\n");
-        print_ctx_conf(configs_info[i]);
+        print_ctx_conf_info(configs_info[i]);
       }
     }
   } else if (argc == 3) {
-    ctx_conf ctx_conf_1 = exec_qtxium(argv[2], argv[1]);
+    ctx_conf_info ctx_conf_1 = exec_qtxium(argv[2], argv[1]);
     if (is_ctx_conf_valid(ctx_conf_1)) {
-      print_ctx_conf(ctx_conf_1);
+      print_ctx_conf_info(ctx_conf_1);
     } else {
       printf("Invalid config !\n");
     }

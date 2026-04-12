@@ -1,4 +1,5 @@
 #include "ctx_config_formats.h"
+#include <stdlib.h>
 
 const ctx_format qtxium_to_ctx_format(const char *s) {
   for (int i = 0; i <= GRAPH; i++) {
@@ -47,4 +48,11 @@ void fprint_pauli_matrix(FILE *f, const pauli_matrix *pm) {
     }
     fputc('\n', f);
   }
+}
+
+void free_pauli_matrix(pauli_matrix *m) {
+  for (size_t i = 0; i < m->row_count * m->col_count; i++) {
+    free(m->pauli_rows[i].ops);
+  }
+  free(m->pauli_rows);
 }

@@ -1,9 +1,0 @@
-{
-  "file_name": "ctxs/ctx1.txt",
-  "format": "assignment",
-  "qubits_count": -1,
-  "ctx_degree": 1,
-  "ctx_count": 6,
-  "neg_ctx_count": 3,
-  "best_hamming_distance": 1
-}
