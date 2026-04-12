@@ -35,15 +35,15 @@ search_filters parse_search_filters(int argc, char *argv[]) {
     if (!strcmp(key, "id"))
       sf.id = atoi(val);
 #define X(kind, type, name) _X_##kind(name)
-#define _X_INT(name) \
-    else if (!strcmp(key, #name)) sf.name = parse_interval(val);
-#define _X_STR(name) \
-    else if (!strcmp(key, #name)) strncpy(sf.name, val, sizeof(sf.name) - 1);
+#define _X_INT(name)                                                           \
+  else if (!strcmp(key, #name)) sf.name = parse_interval(val);
+#define _X_STR(name)                                                           \
+  else if (!strcmp(key, #name)) strncpy(sf.name, val, sizeof(sf.name) - 1);
 #include "ctx_config_dynamic_attr.def"
 #undef X
 #undef _X_INT
 #undef _X_STR
-      else
+    else
       fprintf(stderr, "Unknown filter key: %s\n", key);
 
     *eq = '='; /* restore argv */

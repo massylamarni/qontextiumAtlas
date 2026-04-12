@@ -43,5 +43,4 @@ void hypergram_to_pauli(hypergram hg, pauli_matrix pm);
 void pauli_to_am(hypergram hg, anticom_matrix am);
 void hypergram_to_am(hypergram hg, anticom_matrix am);
 
-
 #endif

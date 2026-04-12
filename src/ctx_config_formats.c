@@ -10,19 +10,27 @@ const ctx_format qtxium_to_ctx_format(const char *s) {
 
 char pauli_to_char(pauli_operator op) {
   switch (op) {
-    case PAULI_X: return 'X';
-    case PAULI_Y: return 'Y';
-    case PAULI_Z: return 'Z';
-    default: return '?';
+  case PAULI_X:
+    return 'X';
+  case PAULI_Y:
+    return 'Y';
+  case PAULI_Z:
+    return 'Z';
+  default:
+    return '?';
   }
 }
 
 pauli_operator char_to_pauli(char c) {
   switch (c) {
-    case 'X': return PAULI_X;
-    case 'Y': return PAULI_Y;
-    case 'Z': return PAULI_Z;
-    default: return -1;
+  case 'X':
+    return PAULI_X;
+  case 'Y':
+    return PAULI_Y;
+  case 'Z':
+    return PAULI_Z;
+  default:
+    return -1;
   }
 }
 

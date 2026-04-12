@@ -45,7 +45,7 @@ void print_ctx_conf(ctx_conf ctx_conf_i);
 int is_file_valid(char *file_name);
 int is_ctx_conf_valid(ctx_conf ctx_conf_i);
 int scan_dimension(const char *dir_name, size_t *row_count_p,
-                          size_t *col_count_p, size_t *n_qubits_p);
+                   size_t *col_count_p, size_t *n_qubits_p);
 pauli_matrix load_ctx_config(const char *dir_name);
 void free_pauli_matrix(pauli_matrix *m);
 void save_ctx_config(const char *dir_name, const pauli_matrix *pm);

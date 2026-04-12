@@ -6,7 +6,7 @@
 #include <string.h>
 
 void print_ctx_conf(ctx_conf c) {
-    printf("format: %s\n", ctx_format_to_qtxium[c.format]);
+  printf("format: %s\n", ctx_format_to_qtxium[c.format]);
 
 #define X(kind, type, name) _X_##kind(name)
 #define _X_INT(name) printf(#name ": %d\n", c.name);
@@ -26,7 +26,7 @@ int is_ctx_conf_valid(ctx_conf ctx_conf_i) {
 }
 
 int scan_dimension(const char *filename, size_t *row_count_p,
-                          size_t *col_count_p, size_t *n_qubits_p) {
+                   size_t *col_count_p, size_t *n_qubits_p) {
   FILE *f = fopen(filename, "r");
   if (!f) {
     perror(filename);
@@ -195,52 +195,51 @@ int save_json_file(const char *filename, cJSON *json) {
 
   FILE *file = fopen(filename, "w");
   if (!file) {
-    cJSON_Delete(json);
     free(string);
     return 0;
   }
 
   fputs(string, file);
   fclose(file);
-
-  cJSON_Delete(json);
   free(string);
 
   return 1;
 }
 
 ctx_conf load_ctx_config_info(const char *filename) {
-    cJSON *json = NULL;
-    if (!load_json_file(filename, &json)) return (ctx_conf){0};
+  cJSON *json = NULL;
+  if (!load_json_file(filename, &json))
+    return (ctx_conf){0};
 
-    ctx_conf conf = {0};
-    cJSON *item = NULL;
+  ctx_conf conf = {0};
+  cJSON *item = NULL;
 
-    item = cJSON_GetObjectItem(json, "format");
-    if (item && item->valuestring)
-        conf.format = qtxium_to_ctx_format(item->valuestring);
+  item = cJSON_GetObjectItem(json, "format");
+  if (item && item->valuestring)
+    conf.format = qtxium_to_ctx_format(item->valuestring);
 
 #define X(kind, type, name) _X_##kind(name)
-#define _X_INT(name) \
-    item = cJSON_GetObjectItem(json, #name); \
-    if (item) conf.name = item->valueint;
-#define _X_STR(name) \
-    item = cJSON_GetObjectItem(json, #name); \
-    if (item && item->valuestring) \
-        strncpy(conf.name, item->valuestring, sizeof(conf.name) - 1);
+#define _X_INT(name)                                                           \
+  item = cJSON_GetObjectItem(json, #name);                                     \
+  if (item)                                                                    \
+    conf.name = item->valueint;
+#define _X_STR(name)                                                           \
+  item = cJSON_GetObjectItem(json, #name);                                     \
+  if (item && item->valuestring)                                               \
+    strncpy(conf.name, item->valuestring, sizeof(conf.name) - 1);
 #include "ctx_config_dynamic_attr.def"
 #undef X
 #undef _X_INT
 #undef _X_STR
 
-    cJSON_Delete(json);
-    return conf;
+  cJSON_Delete(json);
+  return conf;
 }
 
 void save_ctx_config_info(const char *filename, const ctx_conf *conf) {
-    cJSON *json = cJSON_CreateObject();
+  cJSON *json = cJSON_CreateObject();
 
-    cJSON_AddStringToObject(json, "format", ctx_format_to_qtxium[conf->format]);
+  cJSON_AddStringToObject(json, "format", ctx_format_to_qtxium[conf->format]);
 
 #define X(kind, type, name) _X_##kind(name)
 #define _X_INT(name) cJSON_AddNumberToObject(json, #name, conf->name);
@@ -250,9 +249,9 @@ void save_ctx_config_info(const char *filename, const ctx_conf *conf) {
 #undef _X_INT
 #undef _X_STR
 
-    if (!save_json_file(filename, json))
-        fprintf(stderr, "Error saving ctx config!\n");
-    cJSON_Delete(json);
+  if (!save_json_file(filename, json))
+    fprintf(stderr, "Error saving ctx config!\n");
+  cJSON_Delete(json);
 }
 
 pauli_matrix *load_ctx_configs(const char *dir_name, size_t *out_count) {
@@ -314,7 +313,8 @@ ctx_conf *load_ctx_configs_info(const char *dir_name, size_t *out_count) {
   return list;
 }
 
-void search_ctx_configs(const char *dir_name, size_t *out_count, search_filters sf, ctx_conf configs_info[128]) {
+void search_ctx_configs(const char *dir_name, size_t *out_count,
+                        search_filters sf, ctx_conf configs_info[128]) {
   ctx_conf *loaded_configs = load_ctx_configs_info(dir_name, out_count);
 
 #define IN_RANGE(val, interval)                                                \
@@ -325,16 +325,16 @@ void search_ctx_configs(const char *dir_name, size_t *out_count, search_filters 
   for (size_t i = 0; i < *out_count && found < 128; i++) {
     ctx_conf *c = &loaded_configs[i];
     if (1
-#define X(kind, type, name) && _X_##kind(name)
+#define X(kind, type, name) &&_X_##kind(name)
 #define _X_INT(name) IN_RANGE(c->name, sf.name)
 #define _X_STR(name) (sf.name[0] == '\0' || strcmp(c->name, sf.name) == 0)
 #include "ctx_config_dynamic_attr.def"
 #undef X
 #undef _X_INT
 #undef _X_STR
-) {
-    configs_info[found++] = *c;
-}
+    ) {
+      configs_info[found++] = *c;
+    }
   }
 
 #undef IN_RANGE
@@ -344,7 +344,7 @@ void search_ctx_configs(const char *dir_name, size_t *out_count, search_filters 
 }
 
 search_filters init_search_filters() {
-    search_filters sf = {0};
+  search_filters sf = {0};
 
 #define X(kind, type, name) _X_##kind(name)
 #define _X_INT(name) sf.name = (s_interval){-1, -1};
@@ -354,5 +354,5 @@ search_filters init_search_filters() {
 #undef _X_INT
 #undef _X_STR
 
-    return sf;
+  return sf;
 }
