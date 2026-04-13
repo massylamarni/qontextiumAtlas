@@ -10,6 +10,9 @@ int main(int argc, char *argv[]) {
   case CMD_GET:
     handle_get(&args);
     break;
+  case CMD_SERVE:
+    handle_serve(&args);
+    break;
   default:
     ponexit("No commands given.");
     break;

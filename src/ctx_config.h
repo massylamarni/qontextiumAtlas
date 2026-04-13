@@ -4,7 +4,7 @@
 #define FILE_NAME_SIZE 64
 
 #include "ctx_config_formats.h"
-#include "lib/cJSON.h"
+#include "lib/cjson/cJSON.h"
 #include <dirent.h>
 #include <stdbool.h>
 #include <stdio.h>

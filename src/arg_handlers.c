@@ -3,6 +3,7 @@
 #include "ctx_config_formats.h"
 #include "localdb.h"
 #include "qtxium_interface.h"
+#include "http_server.h"
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -47,7 +48,11 @@ cli_args parse_args(int argc, char *argv[]) {
       else
         ponexit("Unknown flag: %s", argv[i]);
     }
-
+  } else if (strcmp(argv[1], "--serve") == 0) {
+    if (argc < 3)
+      ponexit("Usage: --serve <port>");
+    args.cmd = CMD_SERVE;
+    args.port = atoi(argv[2]);
   } else {
     ponexit("Unknown command: %s\nUsage: --run <format> <path>\n       --get "
             "[filters]",
@@ -93,12 +98,18 @@ void handle_get(cli_args *args) {
   printf("Found %zu config(s)\n", out_count);
   for (size_t i = 0; i < out_count; i++) {
     if (args->show_conf) {
-      printf("~~~ Config %lu ~~~\n", i+1);
+      printf("~~~ Config %lu ~~~\n", i + 1);
       fprint_pauli_matrix(stdout, &pms[i]);
     }
-    printf("~~~ Config %lu infos ~~~\n", i+1);
+    printf("~~~ Config %lu infos ~~~\n", i + 1);
     print_ctx_conf_info(conf_infos[i]);
   }
+}
+
+void handle_serve(cli_args *args) {
+  struct http_server_s *server = http_server_init(args->port, request_handler);
+  printf("Server running on http://localhost:%i\n", args->port);
+  http_server_listen(server);
 }
 
 void ponexit(const char *fmt, ...) {

@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -std=c17 -Wall -I./src
+CFLAGS = -std=c17 -Wall -I./src -DEPOLL -D_DEFAULT_SOURCE -D_GNU_SOURCE
 LDFLAGS = -luuid
 
 SRC_DIR = src

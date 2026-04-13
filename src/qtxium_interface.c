@@ -1,5 +1,3 @@
-// #define _POSIX_C_SOURCE 200809L
-#define _GNU_SOURCE
 #include "qtxium_interface.h"
 #include "ctx_config.h"
 #include <limits.h>
