@@ -11,7 +11,7 @@
 
 s_interval parse_interval(const char *s);
 search_filters parse_search_filters(int argc, char *argv[]);
-ctx_conf_info exec_qtxium(const char *file_name, char *format);
+ctx_conf_info exec_qtxium(const char *dir_name, char *format);
 void parse_result(ctx_conf_info *ctx_conf_i, char *buffer);
 
 #endif

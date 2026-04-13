@@ -1,8 +1,9 @@
 // #define _POSIX_C_SOURCE 200809L
 #define _GNU_SOURCE
 #include "localdb.h"
-#include <stdio.h>
+#include "ctx_config.h"
 #include <errno.h>
+#include <stdio.h>
 
 pauli_matrix load_ctx_config(const char *filename) {
   size_t row_count, col_count, n_qubits;
@@ -83,8 +84,7 @@ pauli_matrix load_ctx_config(const char *filename) {
 }
 
 pauli_matrix *load_ctx_configs(const char *dir_name, size_t *out_count,
-                               const char **file_names,
-                               size_t file_names_count) {
+                               const char **dir_names, size_t dir_names_count) {
   DIR *dir = opendir(dir_name);
   if (!dir) {
     fprintf(stderr, "opendir failed for %s: %s\n", dir_name, strerror(errno));
@@ -99,10 +99,10 @@ pauli_matrix *load_ctx_configs(const char *dir_name, size_t *out_count,
     if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
       continue;
 
-    if (file_names != NULL) {
+    if (dir_names != NULL) {
       bool found = false;
-      for (size_t i = 0; i < file_names_count; i++) {
-        if (strcmp(entry->d_name, file_names[i]) == 0) {
+      for (size_t i = 0; i < dir_names_count; i++) {
+        if (strcmp(entry->d_name, dir_names[i]) == 0) {
           found = true;
           break;
         }
@@ -216,6 +216,8 @@ void save_ctx_config_info(const char *filename, const ctx_conf_info *conf) {
   cJSON_Delete(json);
 }
 
-unsigned int get_new_id() {
-  return 0;
+void get_new_id(unsigned char *id) { uuid_generate(id); }
+
+void get_new_name(char *name, ctx_conf_info conf_info) {
+  snprintf(name, 32, "ctx_%s", conf_info.id);
 }

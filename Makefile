@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -std=c17 -Wall -I./src
-LDFLAGS =
+LDFLAGS = -luuid
 
 SRC_DIR = src
 BUILD_DIR = build

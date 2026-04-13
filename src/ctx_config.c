@@ -3,7 +3,6 @@
 #include "qtxium_interface.h"
 #include <stdio.h>
 
-
 /* Private */
 int scan_dimension(const char *filename, size_t *row_count_p,
                    size_t *col_count_p, size_t *n_qubits_p) {
@@ -105,32 +104,6 @@ search_filters init_search_filters() {
   return sf;
 }
 
-/* Public */
-void search_ctx_configs(const char *dir_name, size_t *out_count,
-                        search_filters sf, ctx_conf_info configs_info[128],
-                        pauli_matrix pms[128]) {
-  search_ctx_configs_info(dir_name, out_count, sf, configs_info);
-  char *file_names[128];
-  for (int i = 0; i < *out_count; i++) {
-    file_names[i] = configs_info[i].file_name;
-  }
-  size_t loaded_count = 0;
-  pms = load_ctx_configs(CTX_CONF_DIR, &loaded_count, (const char **)file_names, *out_count);
-  if (loaded_count != *out_count) printf("Error loading all configurations !\n");
-}
-
-void print_ctx_conf_info(ctx_conf_info conf_info) {
-  printf("format: %s\n", ctx_format_to_qtxium[conf_info.format]);
-
-#define X(kind, type, name) _X_##kind(name)
-#define _X_INT(name) printf(#name ": %d\n", conf_info.name);
-#define _X_STR(name) printf(#name ": %s\n", conf_info.name);
-#include "ctx_config_dynamic_attr.def"
-#undef X
-#undef _X_INT
-#undef _X_STR
-}
-
 void search_ctx_configs_info(const char *dir_name, size_t *out_count,
                              search_filters sf,
                              ctx_conf_info configs_info[128]) {
@@ -162,13 +135,44 @@ void search_ctx_configs_info(const char *dir_name, size_t *out_count,
   free(loaded_configs);
 }
 
+/* Public */
+void search_ctx_configs(const char *dir_name, size_t *out_count,
+                        search_filters sf, ctx_conf_info configs_info[128],
+                        pauli_matrix pms[128]) {
+  search_ctx_configs_info(dir_name, out_count, sf, configs_info);
+  char *dir_names[128];
+  for (int i = 0; i < *out_count; i++) {
+    dir_names[i] = configs_info[i].dir_name;
+  }
+  size_t loaded_count = 0;
+  pms = load_ctx_configs(CTX_CONF_DIR, &loaded_count, (const char **)dir_names,
+                         *out_count);
+  if (loaded_count != *out_count)
+    printf("Error loading all configurations !\n");
+}
+
+void print_ctx_conf_info(ctx_conf_info conf_info) {
+  printf("format: %s\n", ctx_format_to_qtxium[conf_info.format]);
+
+#define X(kind, type, name) _X_##kind(name)
+#define _X_INT(name) printf(#name ": %d\n", conf_info.name);
+#define _X_STR(name) printf(#name ": %s\n", conf_info.name);
+#include "ctx_config_dynamic_attr.def"
+#undef X
+#undef _X_INT
+#undef _X_STR
+}
+
 // new
-void add_ctx_config(const char *src_dir_name, const char *dest_dir_name,
-                    const pauli_matrix *pm, const char *author_name) {
-  save_ctx_config(dest_dir_name, pm);
-  ctx_conf_info conf_info = get_ctx_config_info(src_dir_name);
+void add_ctx_config(ctx_conf_info conf_info, const pauli_matrix *pm,
+                    const char *author_name) {
+  char *save_dir;
+  get_new_id(conf_info.id);
   strcpy(conf_info.author_name, author_name);
-  save_ctx_config_info(dest_dir_name, &conf_info);
+  snprintf(save_dir, 32, "%s/%s", CTX_CONF_DIR, conf_info.id);
+  save_ctx_config(save_dir, pm);
+  snprintf(save_dir, 32, "%s/%s", CTX_CONF_INFO_DIR, conf_info.id);
+  save_ctx_config_info(save_dir, &conf_info);
 }
 
 ctx_conf_info get_ctx_config_info(const char *dir_name) {
@@ -198,12 +202,10 @@ void list_ctx_config_attributes(search_filters sf, inclusion_filters ifs) {
   }
 }
 
-int is_file_valid(char *file_name) {
-  return is_ctx_conf_valid(exec_qtxium(file_name, "assignment"));
+int is_ctx_conf_valid(const char *dir_name) {
+  return is_ctx_conf_info_valid(exec_qtxium(dir_name, "assignment"));
 }
 
-int is_ctx_conf_valid(ctx_conf_info conf_info) {
+int is_ctx_conf_info_valid(ctx_conf_info conf_info) {
   return conf_info.ctx_degree != 0;
 }
-
-void is_ctx_config_present();

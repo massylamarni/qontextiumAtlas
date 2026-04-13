@@ -1,4 +1,5 @@
 #include "arg_handlers.h"
+#include "ctx_config.h"
 #include "ctx_config_formats.h"
 #include "localdb.h"
 #include "qtxium_interface.h"
@@ -57,8 +58,8 @@ cli_args parse_args(int argc, char *argv[]) {
 }
 
 void handle_run(cli_args *args) {
-  ctx_conf_info conf = exec_qtxium(args->path, args->format);
-  if (!is_ctx_conf_valid(conf)) {
+  ctx_conf_info conf_info = exec_qtxium(args->path, args->format);
+  if (!is_ctx_conf_info_valid(conf_info)) {
     ponexit("Invalid config!");
   }
 
@@ -68,21 +69,13 @@ void handle_run(cli_args *args) {
   }
 
   if (args->saveas) {
-    char *save_dir;
     pauli_matrix pm = load_ctx_config(args->path);
     fprint_pauli_matrix(stdout, &pm);
 
-    conf.id = get_new_id();
-    strcpy(conf.author_name, args->saveas);
-
-    snprintf(save_dir, 32, "%s/%i", CTX_CONF_DIR, conf.id);
-    save_ctx_config("ctxs/new_ctx1.txt", &pm);
-
-    snprintf(save_dir, 32, "%s/%i", CTX_CONF_INFO_DIR, conf.id);
-    save_ctx_config_info(save_dir, &conf);
+    add_ctx_config(conf_info, &pm, args->saveas);
   }
 
-  print_ctx_conf_info(conf);
+  print_ctx_conf_info(conf_info);
 }
 
 void handle_get(cli_args *args) {

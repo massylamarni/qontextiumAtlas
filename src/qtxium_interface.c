@@ -58,7 +58,7 @@ search_filters parse_search_filters(int argc, char *argv[]) {
     const char *val = eq + 1;
 
     if (!strcmp(key, "id"))
-      sf.id = atoi(val);
+      strcpy((char*)sf.id, val);
 #define X(kind, type, name) _X_##kind(name)
 #define _X_INT(name)                                                           \
   else if (!strcmp(key, #name)) sf.name = parse_interval(val);
@@ -96,16 +96,16 @@ void parse_result(ctx_conf_info *ctx_conf_i, char *buffer) {
   }
 }
 
-ctx_conf_info exec_qtxium(const char *file_name, char *format) {
+ctx_conf_info exec_qtxium(const char *dir_name, char *format) {
   int pipefd[2];
   pipe(pipefd);
   char buffer[BUFFER_SIZE];
-  const char *qtxium_args[5] = {"qontextium", "--import", format, file_name,
+  const char *qtxium_args[5] = {"qontextium", "--import", format, dir_name,
                                 NULL};
 
-  ctx_conf_info ctx_conf_1 = {0};
-  ctx_conf_1.format = qtxium_to_ctx_format(format);
-  strncpy(ctx_conf_1.file_name, file_name, sizeof(ctx_conf_1.file_name) - 1);
+  ctx_conf_info conf_info = {0};
+  conf_info.format = qtxium_to_ctx_format(format);
+  strncpy(conf_info.dir_name, dir_name, sizeof(conf_info.dir_name) - 1);
 
   pid_t pid = fork();
   if (pid == 0) {
@@ -123,7 +123,7 @@ ctx_conf_info exec_qtxium(const char *file_name, char *format) {
 
     chdir(QONTEXTIUM_DIR);
     char file_path[256];
-    snprintf(file_path, sizeof(file_path), "%s/%s", ATLAS_DIR, file_name);
+    snprintf(file_path, sizeof(file_path), "%s/%s", ATLAS_DIR, dir_name);
 
     printf("Executing cmd: ./qontextium %s %s %s\n", qtxium_args[1],
            qtxium_args[2], file_path);
@@ -139,10 +139,10 @@ ctx_conf_info exec_qtxium(const char *file_name, char *format) {
   FILE *stream = fdopen(pipefd[0], "r");
   while (fgets(buffer, sizeof(buffer), stream) != NULL) {
     // printf("%s", buffer);
-    parse_result(&ctx_conf_1, buffer);
+    parse_result(&conf_info, buffer);
   }
   fclose(stream);
   wait(NULL);
 
-  return ctx_conf_1;
+  return conf_info;
 }
