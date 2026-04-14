@@ -107,7 +107,7 @@ search_filters init_search_filters() {
 void search_ctx_configs_info(const char *dir_name, size_t *out_count,
                              search_filters sf,
                              ctx_conf_info configs_info[128]) {
-  ctx_conf_info *loaded_configs = load_ctx_configs_info(dir_name, out_count);
+  ctx_conf_info *loaded_config_infos = load_ctx_configs_info(dir_name, out_count);
 
 #define IN_RANGE(val, interval)                                                \
   ((interval).min == -1 || (val) >= (interval).min) &&                         \
@@ -115,7 +115,7 @@ void search_ctx_configs_info(const char *dir_name, size_t *out_count,
 
   int found = 0;
   for (size_t i = 0; i < *out_count && found < 128; i++) {
-    ctx_conf_info *c = &loaded_configs[i];
+    ctx_conf_info *c = &loaded_config_infos[i];
     if (1
 #define X(kind, type, name) &&_X_##kind(name)
 #define _X_INT(name) IN_RANGE(c->name, sf.name)
@@ -132,7 +132,7 @@ void search_ctx_configs_info(const char *dir_name, size_t *out_count,
 #undef IN_RANGE
 
   *out_count = found;
-  free(loaded_configs);
+  free(loaded_config_infos);
 }
 
 /* Public */
@@ -141,13 +141,19 @@ void search_ctx_configs(const char *dir_name, size_t *out_count,
                         pauli_matrix pms[128]) {
   search_ctx_configs_info(dir_name, out_count, sf, configs_info);
   char *dir_names[128];
-  for (int i = 0; i < *out_count; i++) {
+  for (size_t i = 0; i < *out_count; i++) {
     dir_names[i] = configs_info[i].dir_name;
   }
   size_t loaded_count = 0;
-  pms = load_ctx_configs(CTX_CONF_DIR, &loaded_count, (const char **)dir_names,
-                         *out_count);
-  if (loaded_count != *out_count)
+  pauli_matrix *loaded_pms =
+      load_ctx_configs(CTX_CONF_DIR, &loaded_count, (const char **)dir_names,
+                       *out_count);
+  for (size_t i = 0; i < loaded_count; i++) {
+    pms[i] = loaded_pms[i];
+  }
+  free(loaded_pms);
+  *out_count = loaded_count;
+  if (loaded_count == 0)
     printf("Error loading all configurations !\n");
 }
 

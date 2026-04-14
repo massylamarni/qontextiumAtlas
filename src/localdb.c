@@ -98,9 +98,13 @@ pauli_matrix *load_ctx_configs(const char *dir_name, size_t *out_count,
       continue;
 
     if (dir_names != NULL) {
+      char entry_base[FILE_NAME_SIZE];
+      dir_name_cpy(entry->d_name, entry_base);
       bool found = false;
       for (size_t i = 0; i < dir_names_count; i++) {
-        if (strcmp(entry->d_name, dir_names[i]) == 0) {
+        char requested_base[FILE_NAME_SIZE];
+        dir_name_cpy(dir_names[i], requested_base);
+        if (strcmp(entry_base, requested_base) == 0) {
           found = true;
           break;
         }
@@ -187,6 +191,7 @@ ctx_conf_info *load_ctx_configs_info(const char *dir_name, size_t *out_count) {
     snprintf(path, sizeof(path), "%s/%s", dir_name, entry->d_name);
 
     ctx_conf_info conf = load_ctx_config_info(path);
+    dir_name_cpy(entry->d_name, conf.dir_name);
     ctx_conf_info *tmp = realloc(list, (count + 1) * sizeof(ctx_conf_info));
     list = tmp;
     list[count++] = conf;
@@ -218,4 +223,13 @@ void get_new_id(unsigned char *id) { uuid_generate(id); }
 
 void get_new_name(char *name, ctx_conf_info conf_info) {
   snprintf(name, 32, "ctx_%s", conf_info.id);
+}
+
+void dir_name_cpy(const char *src_dir_name, char *dest_dir_name) {
+  size_t sizeof_src_dir_name = sizeof(src_dir_name);
+  if (sizeof_src_dir_name == 0) return;
+  strncpy(dest_dir_name, src_dir_name, sizeof_src_dir_name - 1);
+  dest_dir_name[sizeof_src_dir_name - 1] = '\0';
+  char *dot = strrchr(dest_dir_name, '.');
+  if (dot != NULL) *dot = '\0';
 }

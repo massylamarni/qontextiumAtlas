@@ -18,6 +18,7 @@ ctx_conf_info *load_ctx_configs_info(const char *dir_name, size_t *out_count);
 void save_ctx_config_info(const char *dir_name, const ctx_conf_info *conf);
 void get_new_id(unsigned char *id);
 void get_new_name(char *name, ctx_conf_info conf_info);
+void dir_name_cpy(const char *src_dir_name, char *dest_dir_name);
 
 /* TODO */
 void delete_ctx_configs(unsigned int *ids);
