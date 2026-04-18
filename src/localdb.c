@@ -3,16 +3,16 @@
 #include <errno.h>
 #include <stdio.h>
 
-pauli_matrix load_ctx_config(const char *filename) {
+pauli_matrix load_ctx_config(const char *dir_name) {
   size_t row_count, col_count, n_qubits;
   pauli_matrix pm = {0};
 
-  if (!scan_dimension(filename, &row_count, &col_count, &n_qubits))
+  if (!scan_dimension(dir_name, &row_count, &col_count, &n_qubits))
     return (pauli_matrix){0};
 
-  FILE *f = fopen(filename, "r");
+  FILE *f = fopen(dir_name, "r");
   if (!f) {
-    perror(filename);
+    perror(dir_name);
     return (pauli_matrix){0};
   }
 
@@ -40,7 +40,7 @@ pauli_matrix load_ctx_config(const char *filename) {
       if (strlen(token) != n_qubits) {
         fprintf(stderr,
                 "Inconsistent qubit count in %s: expected %zu, got %zu\n",
-                filename, n_qubits, strlen(token));
+                dir_name, n_qubits, strlen(token));
         fclose(f);
         free_pauli_matrix(&pm);
         return (pauli_matrix){0};
@@ -62,7 +62,7 @@ pauli_matrix load_ctx_config(const char *filename) {
         pauli_operator op = char_to_pauli(token[i]);
         if (op == -1) {
           fprintf(stderr, "Invalid char '%c' in %s at row %zu col %zu\n",
-                  token[i], filename, r, c);
+                  token[i], dir_name, r, c);
           fclose(f);
           free_pauli_matrix(&pm);
           return (pauli_matrix){0};
@@ -144,34 +144,39 @@ void save_ctx_config(const char *dir_name, const pauli_matrix *pm) {
   fclose(f);
 }
 
-ctx_conf_info load_ctx_config_info(const char *filename) {
+ctx_conf_info load_ctx_config_info(const char *dir_name) {
   cJSON *json = NULL;
-  if (!load_json_file(filename, &json))
+  if (!load_json_file(dir_name, &json))
     return (ctx_conf_info){0};
 
-  ctx_conf_info conf = {0};
+  ctx_conf_info conf_info = {0};
   cJSON *item = NULL;
 
+  item = cJSON_GetObjectItem(json, "id");
+  if (item && item->valuestring) {
+    if (uuid_parse(item->valuestring, conf_info.id) != 0)
+      fprintf(stderr, "Invalid UUID: %s\n", item->valuestring);
+  }
   item = cJSON_GetObjectItem(json, "format");
   if (item && item->valuestring)
-    conf.format = qtxium_to_ctx_format(item->valuestring);
+    conf_info.format = qtxium_to_ctx_format(item->valuestring);
 
 #define X(kind, type, name) _X_##kind(name)
 #define _X_INT(name)                                                           \
   item = cJSON_GetObjectItem(json, #name);                                     \
   if (item)                                                                    \
-    conf.name = item->valueint;
+    conf_info.name = item->valueint;
 #define _X_STR(name)                                                           \
   item = cJSON_GetObjectItem(json, #name);                                     \
   if (item && item->valuestring)                                               \
-    strncpy(conf.name, item->valuestring, sizeof(conf.name) - 1);
+    strncpy(conf_info.name, item->valuestring, sizeof(conf_info.name) - 1);
 #include "ctx_config_dynamic_attr.def"
 #undef X
 #undef _X_INT
 #undef _X_STR
 
   cJSON_Delete(json);
-  return conf;
+  return conf_info;
 }
 
 ctx_conf_info *load_ctx_configs_info(const char *dir_name, size_t *out_count) {
@@ -201,9 +206,12 @@ ctx_conf_info *load_ctx_configs_info(const char *dir_name, size_t *out_count) {
   return list;
 }
 
-void save_ctx_config_info(const char *filename, const ctx_conf_info *conf) {
+void save_ctx_config_info(const char *dir_name, const ctx_conf_info *conf) {
   cJSON *json = cJSON_CreateObject();
 
+  char uuid_str[37];
+  uuid_unparse(conf->id, uuid_str);
+  cJSON_AddStringToObject(json, "id", uuid_str);
   cJSON_AddStringToObject(json, "format", ctx_format_to_qtxium[conf->format]);
 
 #define X(kind, type, name) _X_##kind(name)
@@ -214,7 +222,7 @@ void save_ctx_config_info(const char *filename, const ctx_conf_info *conf) {
 #undef _X_INT
 #undef _X_STR
 
-  if (!save_json_file(filename, json))
+  if (!save_json_file(dir_name, json))
     fprintf(stderr, "Error saving ctx config!\n");
   cJSON_Delete(json);
 }
@@ -227,9 +235,11 @@ void get_new_name(char *name, ctx_conf_info conf_info) {
 
 void dir_name_cpy(const char *src_dir_name, char *dest_dir_name) {
   size_t sizeof_src_dir_name = sizeof(src_dir_name);
-  if (sizeof_src_dir_name == 0) return;
+  if (sizeof_src_dir_name == 0)
+    return;
   strncpy(dest_dir_name, src_dir_name, sizeof_src_dir_name - 1);
   dest_dir_name[sizeof_src_dir_name - 1] = '\0';
   char *dot = strrchr(dest_dir_name, '.');
-  if (dot != NULL) *dot = '\0';
+  if (dot != NULL)
+    *dot = '\0';
 }

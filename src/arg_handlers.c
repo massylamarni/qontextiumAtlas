@@ -17,7 +17,7 @@ cli_args parse_args(int argc, char *argv[]) {
 
   if (strcmp(argv[1], "--run") == 0) {
     if (argc < 4)
-      ponexit("Usage: --run <format> <path> [--saveas <name>] [--pick <attr>]");
+      ponexit("Usage: [--run <format> <path>] [--saveas <author_name>]? [--pick <attr>]?");
     args.cmd = CMD_RUN;
     args.format = argv[2];
     args.path = argv[3];
@@ -54,9 +54,7 @@ cli_args parse_args(int argc, char *argv[]) {
     args.cmd = CMD_SERVE;
     args.port = atoi(argv[2]);
   } else {
-    ponexit("Unknown command: %s\nUsage: --run <format> <path>\n       --get "
-            "[filters]",
-            argv[1]);
+    ponexit("Unknown command: %s\nUsage: [--get [<filter> = <max>:<min>]*] [--conf]? (INT_MIN = -, INT_MAX = +)", argv[1]);
   }
 
   return args;
@@ -69,7 +67,7 @@ void handle_run(cli_args *args) {
   }
 
   if (args->pick) {
-    // print_ctx_conf_attr(conf, args->pick);
+    // TODO: print_ctx_conf_attr(conf, args->pick);
     return;
   }
 
@@ -77,10 +75,10 @@ void handle_run(cli_args *args) {
     pauli_matrix pm = load_ctx_config(args->path);
     fprint_pauli_matrix(stdout, &pm);
 
-    add_ctx_config(conf_info, &pm, args->saveas);
+    add_ctx_config(&conf_info, &pm, args->saveas);
   }
 
-  print_ctx_conf_info(conf_info);
+  fprint_ctx_conf_info(stdout, conf_info);
 }
 
 void handle_get(cli_args *args) {
@@ -102,7 +100,7 @@ void handle_get(cli_args *args) {
       fprint_pauli_matrix(stdout, &pms[i]);
     }
     printf("~~~ Config %lu infos ~~~\n", i + 1);
-    print_ctx_conf_info(conf_infos[i]);
+    fprint_ctx_conf_info(stdout, conf_infos[i]);
   }
 }
 

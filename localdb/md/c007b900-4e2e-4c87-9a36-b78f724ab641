@@ -1,0 +1,12 @@
+{
+	"id":	"c007b900-4e2e-4c87-9a36-b78f724ab641",
+	"format":	"assignment",
+	"qubits_count":	-1,
+	"ctx_degree":	1,
+	"ctx_count":	6,
+	"neg_ctx_count":	3,
+	"best_hamming_distance":	1,
+	"dimension":	0,
+	"observable_count":	0,
+	"author_name":	"jhonny"
+}

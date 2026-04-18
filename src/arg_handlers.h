@@ -1,3 +1,6 @@
+#ifndef ARG_HANDLERS
+#define ARG_HANDLERS
+
 #include "ctx_config.h"
 
 typedef enum {
@@ -26,3 +29,5 @@ void handle_run(cli_args *args);
 void handle_get(cli_args *args);
 void handle_serve(cli_args *args);
 void ponexit(const char *fmt, ...);
+
+#endif

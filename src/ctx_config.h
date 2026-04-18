@@ -12,7 +12,7 @@
 #include <string.h>
 
 typedef struct {
-  unsigned char *id;
+  unsigned char id[16];
   ctx_format format;
   char dir_name[FILE_NAME_SIZE];
 
@@ -31,7 +31,7 @@ typedef struct {
 } s_interval;
 
 typedef struct {
-  unsigned char *id;
+  unsigned char id[16];
   ctx_format format;
 
 #define X(kind, type, name) _X_##kind(name)
@@ -70,11 +70,9 @@ void search_ctx_configs_info(const char *dir_name, size_t *out_count,
 void search_ctx_configs(const char *dir_name, size_t *out_count,
                         search_filters sf, ctx_conf_info configs_info[128],
                         pauli_matrix pms[128]);
-void print_ctx_conf_info(ctx_conf_info conf_info);
+void fprint_ctx_conf_info(FILE *f, ctx_conf_info conf_info);
 
-
-// new
-void add_ctx_config(ctx_conf_info conf_info, const pauli_matrix *pm,
+void add_ctx_config(ctx_conf_info *conf_info, const pauli_matrix *pm,
                     const char *author_name);
 ctx_conf_info get_ctx_config_info(const char *dir_name);
 void list_ctx_config_attributes(search_filters sfs, inclusion_filters ifs);
