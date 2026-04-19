@@ -415,3 +415,9 @@ svg {
     width: 100%;
   }
 }
+
+.myDiv {
+  background-color: #f3f4f6;
+  padding: 20px;
+  border-radius: 12px;
+}
