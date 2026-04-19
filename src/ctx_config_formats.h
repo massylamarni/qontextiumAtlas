@@ -22,6 +22,8 @@ typedef struct {
 
 typedef struct {
   int **obs;
+  size_t n_edges;
+  size_t n_vertices;
 } hypergram;
 
 typedef struct {
@@ -33,9 +35,11 @@ static const char ctx_format_to_qtxium[3][16] = {
 
 const ctx_format qtxium_to_ctx_format(const char *s);
 char pauli_to_char(pauli_operator op);
+int pauli_to_int(pauli_operator op);
 pauli_operator char_to_pauli(char c);
 void fprint_pauli_matrix(FILE *f, const pauli_matrix *pm);
 void free_pauli_matrix(pauli_matrix *pm);
+int **alloc_matrix(size_t rows, size_t cols);
 
 /* TODO */
 
