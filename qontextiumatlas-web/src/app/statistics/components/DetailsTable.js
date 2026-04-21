@@ -1,45 +1,51 @@
 export default function DetailsTable({ type, data, loading = false }) {
   if (!type) return null;
 
-  return (
-    <div className="bg-zinc-900 border border-zinc-700 p-6 rounded-xl">
+  const total = data.reduce((sum, item) => sum + item.count, 0);
 
-      <h2 className="text-white text-lg mb-4">
-        {type === "degree" && "Degrees Leaderboard"}
-        {type === "negative" && "Negative ctx Ranking"}
-        {type === "total" && "All ctx"}
+  return (
+    <div className="w-full overflow-x-auto">
+
+      <h2 className="text-xl font-semibold mb-4">
+        {type === "degree" && "📈 Degrees Distribution"}
+        {type === "negative" && "⚠️ Negative ctx Distribution"}
+        {type === "total" && "📊 Context Distribution"}
+        {type === "qubits" && "🧠 Qubits Distribution"}
       </h2>
 
       {loading ? (
-        <div className="text-white text-center py-8">
-          Chargement des données...
+        <div className="text-center py-8 text-zinc-400">
+          Chargement...
         </div>
       ) : data.length === 0 ? (
-        <div className="text-zinc-400 text-center py-8">
+        <div className="text-center py-8 text-zinc-500">
           Aucune donnée disponible
         </div>
       ) : (
-        <table className="w-full text-white border border-zinc-700">
+        <table className="w-full text-sm">
 
-          <thead>
-            <tr className="bg-zinc-800">
-              <th className="p-3 border">Value</th>
-              <th className="p-3 border">Count</th>
-            </tr>
-          </thead>
+  <thead>
+    <tr className="text-left border-b text-gray-500">
+      <th className="p-3">Value</th>
+      <th className="p-3">%</th>
+    </tr>
+  </thead>
 
-          <tbody>
-            {data
-              .sort((a, b) => b.value - a.value)
-              .map((item, index) => (
-                <tr key={index} className="text-center">
-                  <td className="p-3 border">{item.value}</td>
-                  <td className="p-3 border">{item.count}</td>
-                </tr>
-              ))}
-          </tbody>
+  <tbody>
+    {data.map((item, index) => {
+      const total = data.reduce((sum, i) => sum + i.count, 0);
+      const percentage = ((item.count / total) * 100).toFixed(1);
 
-        </table>
+      return (
+        <tr key={index} className="border-b hover:bg-gray-50">
+          <td className="p-3 font-medium text-gray-800">{item.value}</td>
+          <td className="p-3 text-gray-600">{percentage}%</td>
+        </tr>
+      );
+    })}
+  </tbody>
+
+</table>
       )}
     </div>
   );

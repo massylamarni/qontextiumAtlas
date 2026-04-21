@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { connectToDatabase } from '../../../lib/mongodb';
+import { connectToDatabase } from '@/lib/mongodb';
 
 export async function GET(req) {
   try {
@@ -8,17 +8,16 @@ export async function GET(req) {
 
     // Agrégation MongoDB pour récupérer le max de ctx_degree
     const result = await collection.aggregate([
-      {
-        $group: {
-          _id: null,
-          maxDegree: { $max: '$ctx_degree' },
-          totalConfigs: { $sum: 1 },
-          maxNegCtx: { $max: '$neg_ctx_count' },
-          maxHammingDistance: { $max: '$best_hamming_distance' },
-          maxCtxCount: { $max: '$ctx_count' }
-        }
-      }
-    ]).toArray();
+  {
+    $group: {
+      _id: null,
+      totalConfigs: { $sum: 1 },
+      maxDegree: { $max: '$ctx_degree' },
+      maxNegCtx: { $max: '$neg_ctx_count' },
+      maxQubits: { $max: '$qubits_count' } 
+    }
+  }
+]).toArray();
 
     if (result.length === 0) {
       return NextResponse.json({

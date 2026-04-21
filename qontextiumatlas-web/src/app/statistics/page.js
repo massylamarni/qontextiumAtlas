@@ -7,10 +7,11 @@ import DetailsTable from "./components/DetailsTable";
 export default function StatisticsPage() {
   const [selectedType, setSelectedType] = useState(null);
   const [stats, setStats] = useState({
-    maxDegree: 0,
-    totalCtx: 0,
-    negativeCtx: 0,
-  });
+  totalConfigs: 0,
+  maxDegree: 0,
+  maxQubits: 0,
+  maxNegCtx: 0,
+});
   const [detailedData, setDetailedData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingDetails, setLoadingDetails] = useState(false);
@@ -22,10 +23,11 @@ export default function StatisticsPage() {
         const res = await fetch('/api/get/stats');
         const data = await res.json();
         setStats({
-          maxDegree: data.maxDegree || 0,
-          totalCtx: data.totalConfigs || 0,
-          negativeCtx: data.maxNegCtx || 0,
-        });
+  totalConfigs: data.totalConfigs || 0,
+  maxDegree: data.maxDegree || 0,
+  maxQubits: data.maxQubits || 0,
+  maxNegCtx: data.maxNegCtx || 0,
+});
       } catch (error) {
         console.error('Erreur lors du chargement des stats:', error);
       } finally {
@@ -47,10 +49,11 @@ export default function StatisticsPage() {
       setLoadingDetails(true);
       try {
         const metricMap = {
-          degree: 'ctx_degree',
-          negative: 'neg_ctx_count',
-          total: 'ctx_count'
-        };
+  degree: 'ctx_degree',
+  negative: 'neg_ctx_count',
+  total: 'ctx_count',
+  qubits: 'qubits_count' 
+};
 
         const res = await fetch(`/api/get/stats-detail?metric=${metricMap[selectedType]}`);
         const data = await res.json();
@@ -74,23 +77,55 @@ export default function StatisticsPage() {
     );
   }
 
-  return (
-    <main className="min-h-screen bg-black p-8 space-y-8">
 
-      <h1 className="text-3xl font-bold text-white">
-        Statistics Dashboard
+//   return (
+//   <main className="min-h-screen bg-zinc-950 text-white px-4 md:px-10 py-10">
+
+//     <div className="max-w-6xl mx-auto space-y-10">
+
+//       <h1 className="text-3xl md:text-4xl font-bold">
+//         📊 Statistics Dashboard
+//       </h1>
+
+//       {/* Cards container */}
+//       <div className="bg-zinc-900 p-6 rounded-2xl shadow-lg">
+//         <SummaryGrid stats={stats} onSelect={setSelectedType} />
+//       </div>
+
+//       {/* Table container */}
+//       <div className="bg-zinc-900 p-6 rounded-2xl shadow-lg">
+//         <DetailsTable
+//           type={selectedType}
+//           data={detailedData}
+//           loading={loadingDetails}
+//         />
+//       </div>
+
+//     </div>
+//   </main>
+// );
+return (
+  <main className="min-h-screen bg-gray-100 px-6 py-10">
+
+    <div className="max-w-7xl mx-auto space-y-8">
+
+      <h1 className="text-2xl font-bold text-gray-800">
+        📊 Statistics Dashboard
       </h1>
 
-      {/* Cards avec vraies données */}
+      {/* Cards */}
       <SummaryGrid stats={stats} onSelect={setSelectedType} />
 
-      {/* Tableau avec vraies données */}
-      <DetailsTable
-        type={selectedType}
-        data={detailedData}
-        loading={loadingDetails}
-      />
+      {/* Table */}
+      <div className="bg-white rounded-xl shadow p-6">
+        <DetailsTable
+          type={selectedType}
+          data={detailedData}
+          loading={loadingDetails}
+        />
+      </div>
 
-    </main>
-  );
+    </div>
+  </main>
+);
 }
