@@ -21,9 +21,8 @@ typedef struct {
 } pauli_matrix;
 
 typedef struct {
+  pauli_operator **list_vertices;
   int **obs;
-  size_t n_edges;
-  size_t n_vertices;
 } hypergram;
 
 typedef struct {
@@ -43,6 +42,7 @@ int **alloc_matrix(size_t rows, size_t cols);
 
 /* TODO */
 
+void free_hypergram(hypergram *hg);
 void pauli_to_hypergram(pauli_matrix pm, hypergram hg);
 void hypergram_to_pauli(hypergram hg, pauli_matrix pm);
 void pauli_to_am(hypergram hg, anticom_matrix am);

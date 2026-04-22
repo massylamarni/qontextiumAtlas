@@ -76,7 +76,7 @@ void free_pauli_matrix(pauli_matrix *m) {
   free(m->pauli_rows);
 }
 
-int **alloc_matrix(size_t rows, size_t cols) {
+int **alloc_matrix_int(size_t rows, size_t cols) {
     int **m = malloc(rows * sizeof(int *));
     for (size_t i = 0; i < rows; i++) {
         m[i] = calloc(cols, sizeof(int)); 
@@ -84,21 +84,16 @@ int **alloc_matrix(size_t rows, size_t cols) {
     return m;
 }
 
-void pauli_to_hypergram(pauli_matrix pm, hypergram hg){
-    hg.n_edges = pm.row_count;
-    hg.n_vertices = pm.col_count;
-    hg.obs = alloc_matrix(hg.n_edges, hg.n_vertices);
-
-    for (size_t i = 0; i < pm.row_count; i++) {
-        for (size_t j = 0; j < pm.col_count; j+=pm.pauli_rows[i].n_qubits) {
-            int id_qubits = 1;
-            int multi = 1;
-            for (size_t k = pm.pauli_rows[i].n_qubits-1; k > -1; k--) {
-                pauli_operator op = pm.pauli_rows[i].ops[j+k];
-                id_qubits += multi*pauli_to_int(op);
-                multi *= 4;
-            }
-            hg.obs[i][j] = id_qubits;
-        }
+int **alloc_matrix_pauli_oper(size_t rows, size_t cols) {
+    pauli_operator **m = malloc(rows * sizeof(pauli_operator *));
+    for (size_t i = 0; i < rows; i++) {
+        m[i] = calloc(cols, sizeof(pauli_operator)); 
     }
+    return m;
+}
+
+/* TODO */
+
+void pauli_to_hypergram(pauli_matrix pm, hypergram hg){
+    
 }
