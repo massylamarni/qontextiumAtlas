@@ -1,6 +1,7 @@
 #include "ctx_config.h"
 #include "localdb.h"
 #include "qtxium_interface.h"
+#include <limits.h>
 #include <stdio.h>
 
 /* Private */
@@ -103,37 +104,248 @@ search_filters init_search_filters() {
 
   return sf;
 }
+static sort_ctx_t g_sort_ctx;
+static int cmp_configs(const void *a, const void *b) {
+  const ctx_conf_info *ca = (const ctx_conf_info *)a;
+  const ctx_conf_info *cb = (const ctx_conf_info *)b;
+
+  for (int k = 0; k < g_sort_ctx.keys; k++) {
+    int va = *(int *)((char *)ca + g_sort_ctx.field_offset[k]);
+    int vb = *(int *)((char *)cb + g_sort_ctx.field_offset[k]);
+    if (va != vb)
+      return g_sort_ctx.dir[k] * (va - vb);
+  }
+  return 0;
+}
 
 void search_ctx_configs_info(const char *dir_name, size_t *out_count,
                              search_filters sf,
                              ctx_conf_info configs_info[128]) {
-  ctx_conf_info *loaded_config_infos =
-      load_ctx_configs_info(dir_name, out_count);
+  ctx_conf_info *loaded = load_ctx_configs_info(dir_name, out_count);
 
 #define IN_RANGE(val, interval)                                                \
   ((interval).min == -1 || (val) >= (interval).min) &&                         \
       ((interval).max == -1 || (val) <= (interval).max)
 
+  // Resolve g | l
+#define X(kind, type, name) _X_RESOLVE_##kind(name)
+#define _X_RESOLVE_INT(name)                                                   \
+  int global_least_##name = INT_MAX;                                           \
+  int global_greatest_##name = INT_MIN;                                        \
+  if (sf.name.use_lowest || sf.name.use_greatest) {                     \
+    for (size_t _i = 0; _i < *out_count; _i++) {                               \
+      if (loaded[_i].name < global_least_##name)                               \
+        global_least_##name = loaded[_i].name;                                 \
+      if (loaded[_i].name > global_greatest_##name)                            \
+        global_greatest_##name = loaded[_i].name;                              \
+    }                                                                          \
+    if (sf.name.use_lowest)                                                 \
+      sf.name.min = global_least_##name;                                       \
+    if (sf.name.use_greatest)                                              \
+      sf.name.max = global_greatest_##name;                                    \
+    if (sf.name.sort_dir == SORT_NONE) {                                       \
+      if (sf.name.use_lowest)                                               \
+        sf.name.max = sf.name.min;                                             \
+      if (sf.name.use_greatest)                                            \
+        sf.name.min = sf.name.max;                                             \
+    }                                                                          \
+  }
+#define _X_RESOLVE_STR(name)
+#include "ctx_config_dynamic_attr.def"
+#undef X
+#undef _X_RESOLVE_INT
+#undef _X_RESOLVE_STR
+
+  // Collecting sort fields by arg order
+  typedef struct {
+    int arg_index;
+    int offset;
+    int dir;
+  } sort_field_t;
+  sort_field_t sort_fields[8];
+  int sort_field_count = 0;
+
+#define X(kind, type, name) _X_SORT_##kind(name)
+#define _X_SORT_INT(name)                                                      \
+  if (sf.name.sort_dir != SORT_NONE) {                                         \
+    sort_fields[sort_field_count++] =                                          \
+        (sort_field_t){sf.name.arg_index, (int)offsetof(ctx_conf_info, name),  \
+                       sf.name.sort_dir == SORT_ASC ? 1 : -1};                 \
+  }
+#define _X_SORT_STR(name)
+#include "ctx_config_dynamic_attr.def"
+#undef X
+#undef _X_SORT_INT
+#undef _X_SORT_STR
+
+  // Sort by arg index
+  for (int a = 0; a < sort_field_count - 1; a++)
+    for (int b = a + 1; b < sort_field_count; b++)
+      if (sort_fields[a].arg_index > sort_fields[b].arg_index) {
+        sort_field_t tmp = sort_fields[a];
+        sort_fields[a] = sort_fields[b];
+        sort_fields[b] = tmp;
+      }
+
+  // Apply
   int found = 0;
-  for (size_t i = 0; i < *out_count && found < 128; i++) {
-    ctx_conf_info *c = &loaded_config_infos[i];
-    if (1
-#define X(kind, type, name) &&_X_##kind(name)
-#define _X_INT(name) IN_RANGE(c->name, sf.name)
-#define _X_STR(name) (sf.name[0] == '\0' || strcmp(c->name, sf.name) == 0)
+  bool any_invalid = false;
+
+#define X(kind, type, name) _X_INVALID_##kind(name)
+#define _X_INVALID_INT(name)                                                   \
+  if (sf.name.invalid)                                                         \
+    any_invalid = true;
+#define _X_INVALID_STR(name)
+#include "ctx_config_dynamic_attr.def"
+#undef X
+#undef _X_INVALID_INT
+#undef _X_INVALID_STR
+
+  if (!any_invalid) {
+    for (size_t i = 0; i < *out_count && found < 128; i++) {
+      ctx_conf_info *c = &loaded[i];
+      if (1
+#define X(kind, type, name) &&_X_FILTER_##kind(name)
+#define _X_FILTER_INT(name) IN_RANGE(c->name, sf.name)
+#define _X_FILTER_STR(name)                                                    \
+  (sf.name[0] == '\0' || strcmp(c->name, sf.name) == 0)
+#include "ctx_config_dynamic_attr.def"
+#undef X
+#undef _X_FILTER_INT
+#undef _X_FILTER_STR
+      ) {
+        configs_info[found++] = *c;
+      }
+    }
+  }
+
+  // Sort
+  int keys = sort_field_count < 2 ? sort_field_count : 2;
+  if (keys > 0 && found > 1) {
+    g_sort_ctx.keys = keys;
+    for (int k = 0; k < keys; k++) {
+      g_sort_ctx.field_offset[k] = sort_fields[k].offset;
+      g_sort_ctx.dir[k] = sort_fields[k].dir;
+    }
+    qsort(configs_info, found, sizeof(ctx_conf_info), cmp_configs);
+  }
+
+#undef IN_RANGE
+  *out_count = found;
+  free(loaded);
+}
+
+s_interval parse_interval(const char *val, int arg_index) {
+  s_interval interval = {-1, -1, false, false, SORT_NONE, false, arg_index};
+  char *colon = strchr(val, ':');
+
+  if (!colon) {
+    interval.min = atoi(val);
+    interval.max = interval.min;
+    return interval;
+  }
+
+  char min_str[32] = {0}, max_str[32] = {0};
+  size_t min_len = colon - val;
+  strncpy(min_str, val,
+          min_len < sizeof(min_str) - 1 ? min_len : sizeof(min_str) - 1);
+  strncpy(max_str, colon + 1, sizeof(max_str) - 1);
+
+  bool min_empty = (min_str[0] == '\0');
+  bool max_empty = (max_str[0] == '\0');
+  bool min_is_l = (min_str[0] == 'l' && min_str[1] == '\0');
+  bool min_is_g = (min_str[0] == 'g' && min_str[1] == '\0');
+  bool max_is_l = (max_str[0] == 'l' && max_str[1] == '\0');
+  bool max_is_g = (max_str[0] == 'g' && max_str[1] == '\0');
+
+  if ((min_is_g && max_empty) || (max_is_l && min_empty)) {
+    interval.invalid = true;
+    return interval;
+  }
+
+  if (min_is_l && max_empty) {
+    interval.use_lowest = true;
+    interval.use_greatest = false;
+    interval.sort_dir = SORT_NONE;
+    return interval;
+  }
+  if (max_is_g && min_empty) {
+    interval.use_greatest = true;
+    interval.use_lowest = false;
+    interval.sort_dir = SORT_NONE;
+    return interval;
+  }
+
+  if (min_empty)
+    interval.min = -1;
+  else if (min_is_l)
+    interval.use_lowest = true;
+  else if (min_str[0] == '-')
+    interval.min = INT_MIN;
+  else if (min_str[0] == '+')
+    interval.min = INT_MAX;
+  else
+    interval.min = atoi(min_str);
+
+  if (max_empty)
+    interval.max = -1;
+  else if (max_is_g)
+    interval.use_greatest = true;
+  else if (max_str[0] == '+')
+    interval.max = INT_MAX;
+  else if (max_str[0] == '-')
+    interval.max = INT_MIN;
+  else
+    interval.max = atoi(max_str);
+
+  if (min_is_l) {
+    interval.sort_dir = SORT_ASC;
+    if (max_is_g || max_str[0] == '+')
+      interval.use_greatest = false, interval.max = -1;
+  } else if (max_is_g) {
+    interval.sort_dir = SORT_DESC;
+    if (min_is_g || min_str[0] == '-')
+      interval.use_lowest = false, interval.min = -1;
+  } else if (min_is_g && max_is_l) {
+    interval.sort_dir = SORT_DESC;
+    interval.min = -1;
+    interval.max = -1;
+  }
+
+  return interval;
+}
+
+search_filters parse_search_filters(int argc, char *argv[]) {
+  search_filters sf = init_search_filters();
+
+  for (int i = 0; i < argc; i++) {
+    char *eq = strchr(argv[i], '=');
+    if (!eq) {
+      fprintf(stderr, "Ignored unknown arg: %s\n", argv[i]);
+      continue;
+    }
+
+    *eq = '\0'; /* split key / value in-place */
+    const char *key = argv[i];
+    const char *val = eq + 1;
+
+    if (!strcmp(key, "id"))
+      strcpy((char *)sf.id, val);
+#define X(kind, type, name) _X_##kind(name)
+#define _X_INT(name)                                                           \
+  else if (!strcmp(key, #name)) sf.name = parse_interval(val, i);
+#define _X_STR(name)                                                           \
+  else if (!strcmp(key, #name)) strncpy(sf.name, val, sizeof(sf.name) - 1);
 #include "ctx_config_dynamic_attr.def"
 #undef X
 #undef _X_INT
 #undef _X_STR
-    ) {
-      configs_info[found++] = *c;
-    }
+    else
+      fprintf(stderr, "Unknown filter key: %s\n", key);
+
+    *eq = '='; /* restore argv */
   }
-
-#undef IN_RANGE
-
-  *out_count = found;
-  free(loaded_config_infos);
+  return sf;
 }
 
 /* Public */

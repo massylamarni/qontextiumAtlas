@@ -181,8 +181,10 @@ ctx_conf_info load_ctx_config_info(const char *dir_name) {
 
 ctx_conf_info *load_ctx_configs_info(const char *dir_name, size_t *out_count) {
   DIR *dir = opendir(dir_name);
-  if (!dir)
+  if (!dir) {
+    *out_count = 0;
     return NULL;
+  }
 
   ctx_conf_info *list = NULL;
   size_t count = 0;
