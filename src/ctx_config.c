@@ -3,6 +3,7 @@
 #include "qtxium_interface.h"
 #include <limits.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 /* Private */
 int scan_dimension(const char *dir_name, size_t *row_count_p,
@@ -123,6 +124,21 @@ void search_ctx_configs_info(const char *dir_name, size_t *out_count,
                              ctx_conf_info configs_info[128]) {
   ctx_conf_info *loaded = load_ctx_configs_info(dir_name, out_count);
 
+  static const unsigned char s_zero_id[16] = {0};
+  if (memcmp(sf.id, s_zero_id, 16) != 0) {
+    for (size_t i = 0; i < *out_count; i++) {
+      if (memcmp(loaded[i].id, sf.id, 16) == 0) {
+        configs_info[0] = loaded[i];
+        *out_count = 1;
+        free(loaded);
+        return;
+      }
+    }
+    *out_count = 0;
+    free(loaded);
+    return;
+  }
+
 #define IN_RANGE(val, interval)                                                \
   ((interval).min == -1 || (val) >= (interval).min) &&                         \
       ((interval).max == -1 || (val) <= (interval).max)
@@ -132,21 +148,21 @@ void search_ctx_configs_info(const char *dir_name, size_t *out_count,
 #define _X_RESOLVE_INT(name)                                                   \
   int global_least_##name = INT_MAX;                                           \
   int global_greatest_##name = INT_MIN;                                        \
-  if (sf.name.use_lowest || sf.name.use_greatest) {                     \
+  if (sf.name.use_lowest || sf.name.use_greatest) {                            \
     for (size_t _i = 0; _i < *out_count; _i++) {                               \
       if (loaded[_i].name < global_least_##name)                               \
         global_least_##name = loaded[_i].name;                                 \
       if (loaded[_i].name > global_greatest_##name)                            \
         global_greatest_##name = loaded[_i].name;                              \
     }                                                                          \
-    if (sf.name.use_lowest)                                                 \
+    if (sf.name.use_lowest)                                                    \
       sf.name.min = global_least_##name;                                       \
-    if (sf.name.use_greatest)                                              \
+    if (sf.name.use_greatest)                                                  \
       sf.name.max = global_greatest_##name;                                    \
     if (sf.name.sort_dir == SORT_NONE) {                                       \
-      if (sf.name.use_lowest)                                               \
+      if (sf.name.use_lowest)                                                  \
         sf.name.max = sf.name.min;                                             \
-      if (sf.name.use_greatest)                                            \
+      if (sf.name.use_greatest)                                                \
         sf.name.min = sf.name.max;                                             \
     }                                                                          \
   }
@@ -329,8 +345,12 @@ search_filters parse_search_filters(int argc, char *argv[]) {
     const char *key = argv[i];
     const char *val = eq + 1;
 
-    if (!strcmp(key, "id"))
-      strcpy((char *)sf.id, val);
+    if (!strcmp(key, "id")) {
+      if (uuid_parse(val, sf.id) != 0) {
+        fprintf(stderr, "Invalid UUID: %s\n", val);
+        exit(1);
+      }
+    }
 #define X(kind, type, name) _X_##kind(name)
 #define _X_INT(name)                                                           \
   else if (!strcmp(key, #name)) sf.name = parse_interval(val, i);
@@ -340,8 +360,10 @@ search_filters parse_search_filters(int argc, char *argv[]) {
 #undef X
 #undef _X_INT
 #undef _X_STR
-    else
+    else {
       fprintf(stderr, "Unknown filter key: %s\n", key);
+      exit(1);
+    }
 
     *eq = '='; /* restore argv */
   }
@@ -365,8 +387,6 @@ void search_ctx_configs(const char *dir_name, size_t *out_count,
   }
   free(loaded_pms);
   *out_count = loaded_count;
-  if (loaded_count == 0)
-    printf("Error loading all configurations !\n");
 }
 
 void fprint_ctx_conf_info(FILE *f, ctx_conf_info conf_info) {
