@@ -13,7 +13,6 @@ export default function StatisticsPage() {
   maxNegCtx: 0,
 });
   const [detailedData, setDetailedData] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [loadingDetails, setLoadingDetails] = useState(false);
 
   // Récupération des vraies statistiques depuis la DB
@@ -30,8 +29,6 @@ export default function StatisticsPage() {
 });
       } catch (error) {
         console.error('Erreur lors du chargement des stats:', error);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -69,31 +66,20 @@ export default function StatisticsPage() {
     fetchDetails();
   }, [selectedType]);
 
-  if (loading) {
-    return (
-      <main className="min-h-screen bg-black p-8 space-y-8">
-        <div className="text-white text-center">Chargement des statistiques...</div>
-      </main>
-    );
-  }
+// return (
+//   <main className="min-h-screen bg-gray-100 px-6 py-10">
 
+//     <div className="max-w-7xl mx-auto space-y-8">
 
-//   return (
-//   <main className="min-h-screen bg-zinc-950 text-white px-4 md:px-10 py-10">
-
-//     <div className="max-w-6xl mx-auto space-y-10">
-
-//       <h1 className="text-3xl md:text-4xl font-bold">
+//       <h1 className="text-2xl font-bold text-gray-800">
 //         📊 Statistics Dashboard
 //       </h1>
 
-//       {/* Cards container */}
-//       <div className="bg-zinc-900 p-6 rounded-2xl shadow-lg">
-//         <SummaryGrid stats={stats} onSelect={setSelectedType} />
-//       </div>
+//       {/* Cards */}
+//       <SummaryGrid stats={stats} onSelect={setSelectedType} />
 
-//       {/* Table container */}
-//       <div className="bg-zinc-900 p-6 rounded-2xl shadow-lg">
+//       {/* Table */}
+//       <div className="bg-white rounded-xl shadow p-6">
 //         <DetailsTable
 //           type={selectedType}
 //           data={detailedData}
@@ -104,24 +90,26 @@ export default function StatisticsPage() {
 //     </div>
 //   </main>
 // );
+
 return (
-  <main className="min-h-screen bg-gray-100 px-6 py-10">
+  <main className="min-h-screen bg-zinc-950 text-white px-6 py-10">
 
     <div className="max-w-7xl mx-auto space-y-8">
 
-      <h1 className="text-2xl font-bold text-gray-800">
-        📊 Statistics Dashboard
+      <h1 className="text-3xl font-bold">
+        Statistics Dashboard
       </h1>
 
       {/* Cards */}
-      <SummaryGrid stats={stats} onSelect={setSelectedType} />
+      <div className="bg-zinc-900 p-6 rounded-2xl border border-zinc-800">
+        <SummaryGrid stats={stats} onSelect={setSelectedType} />
+      </div>
 
       {/* Table */}
-      <div className="bg-white rounded-xl shadow p-6">
+      <div className="bg-zinc-900 p-6 rounded-2xl border border-zinc-800">
         <DetailsTable
           type={selectedType}
           data={detailedData}
-          loading={loadingDetails}
         />
       </div>
 
