@@ -1,0 +1,110 @@
+.header {
+  display: flex;
+  align-items: center;
+  height: 48px;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--element-border-color);
+  background: var(--element-color);
+  gap: 24px;
+  flex-shrink: 0;
+}
+
+.logo {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.logoQ {
+  font-family: 'satoshi-black', sans-serif;
+  font-size: 20px;
+  color: var(--signature-color);
+  letter-spacing: -0.5px;
+}
+
+.logoRest {
+  font-family: 'satoshi-black', sans-serif;
+  font-size: 17px;
+  color: var(--default-text-color);
+  letter-spacing: 3px;
+}
+
+.nav {
+  display: flex;
+  align-items: stretch;
+  height: 100%;
+  gap: 2px;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  font-size: 12px;
+  font-family: 'satoshi-medium', sans-serif;
+  color: var(--greyed-text-color);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  position: relative;
+  top: 1px;
+  transition: color 0.15s, border-color 0.15s;
+  letter-spacing: 0.03em;
+}
+
+.navItem:hover {
+  color: var(--default-text-color);
+}
+
+.active {
+  color: var(--signature-color);
+  border-bottom-color: var(--signature-color);
+}
+
+.headerRight {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--greyed-text-color);
+  font-family: 'satoshi-medium', sans-serif;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--signature-color);
+  flex-shrink: 0;
+  animation: blink 2s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 640px) {
+  .header {
+    padding: 0 16px;
+    gap: 12px;
+    height: 44px;
+  }
+  .logoRest { letter-spacing: 2px; font-size: 15px; }
+  .logoQ { font-size: 18px; }
+  .status { display: none; }
+  .navItem { padding: 0 10px; font-size: 11px; }
+}
+
+@media (max-width: 380px) {
+  .navItem { padding: 0 8px; }
+  .logoRest { display: none; }
+}

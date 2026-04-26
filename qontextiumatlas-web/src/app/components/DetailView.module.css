@@ -1,0 +1,270 @@
+.panel {
+  width: 260px;
+  min-width: 240px;
+  background-color: var(--element-color);
+  border: 1px solid var(--element-border-color);
+  border-radius: var(--md-border-radius);
+  display: flex;
+  flex-direction: column;
+  height: fit-content;
+  position: sticky;
+  top: 20px;
+  max-height: calc(100vh - 88px);
+  overflow: hidden;
+}
+
+.panelHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--element-border-color);
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  background: var(--element-color);
+  z-index: 1;
+}
+
+.panelTitle {
+  font-family: 'satoshi-black', sans-serif;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--greyed-text-color);
+}
+
+.closeBtn {
+  font-size: 11px;
+  color: var(--greyed-text-color);
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--element-border-color);
+  background: transparent;
+  transition: color 0.15s;
+}
+.closeBtn:hover { color: var(--default-text-color); }
+
+.panelBody {
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+}
+
+/* Hero */
+.statHero {
+  background: var(--signature-color-filter);
+  border: 1px solid var(--signature-color-filter-border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  flex-shrink: 0;
+}
+.statHeroLabel {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--signature-color);
+  opacity: 0.7;
+  margin-bottom: 4px;
+}
+.statHeroVal {
+  font-family: 'satoshi-black', sans-serif;
+  font-size: 28px;
+  color: var(--signature-color);
+  line-height: 1;
+}
+.statHeroSub {
+  font-size: 10px;
+  color: var(--signature-color);
+  opacity: 0.6;
+  margin-top: 3px;
+}
+
+/* Stats grid */
+.statsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+.statCard {
+  background: var(--background-color);
+  border: 1px solid var(--element-border-color);
+  border-radius: 6px;
+  padding: 7px 9px;
+}
+.statCardSpan { grid-column: 1 / -1; }
+.statLabel {
+  font-size: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--greyed-text-color);
+  margin-bottom: 3px;
+}
+.statVal {
+  font-family: 'satoshi-black', sans-serif;
+  font-size: 13px;
+  color: var(--default-text-color);
+}
+.statValAccent { color: var(--signature-color); font-size: 12px; }
+
+/* Conf section */
+.confSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.sectionLabel {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--greyed-text-color);
+  font-family: 'satoshi-black', sans-serif;
+}
+
+.gridOuter {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+/* Legend */
+.confLegend {
+  display: flex;
+  gap: 8px;
+}
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 9px;
+  color: var(--greyed-text-color);
+}
+.legendDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  border: 1px solid;
+  flex-shrink: 0;
+}
+
+/* Pauli grid */
+.pauliGrid {
+  background: var(--background-color);
+  border: 1px solid var(--element-border-color);
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.pauliRow {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+.ctxLabel {
+  font-size: 9px;
+  color: var(--greyed-text-color);
+  width: 22px;
+  flex-shrink: 0;
+  font-family: 'satoshi-medium', sans-serif;
+}
+.pauliCell {
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  border: 1px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 700;
+  flex-shrink: 0;
+  letter-spacing: -0.5px;
+}
+
+/* Pauli colours — also used for legend dots */
+.pX  { background: rgba(48,228,142,0.12);  border-color: rgba(48,228,142,0.35);  color: #30E48E; }
+.pY  { background: rgba(228,190,48,0.12);  border-color: rgba(228,190,48,0.35);  color: #e4be30; }
+.pZ  { background: rgba(100,160,228,0.12); border-color: rgba(100,160,228,0.35); color: #64a0e4; }
+.pII { background: rgba(100,100,100,0.06); border-color: rgba(100,100,100,0.15); color: #555; }
+.pMix{ background: rgba(160,100,228,0.12); border-color: rgba(160,100,228,0.35); color: #a064e4; }
+
+.rowDivider {
+  height: 1px;
+  background: var(--element-border-color);
+  margin: 3px 0;
+}
+
+.negMarker {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--element-border-color);
+  border: 1px solid var(--greyed-text-color);
+  flex-shrink: 0;
+  margin-left: 4px;
+  cursor: default;
+}
+.negMarkerNeg {
+  background: rgba(224,85,85,0.3);
+  border-color: #e05555;
+}
+
+.noConf { font-size: 12px; color: var(--greyed-text-color); }
+.noConfHint {
+  font-size: 11px;
+  color: var(--greyed-text-color);
+  background: var(--background-color);
+  border: 1px solid var(--element-border-color);
+  border-radius: 8px;
+  padding: 10px 12px;
+  line-height: 1.5;
+}
+
+/* Placeholder */
+.placeholder {
+  width: 260px;
+  min-width: 240px;
+  background-color: var(--element-color);
+  border: 1px dashed var(--element-border-color);
+  border-radius: var(--md-border-radius);
+  padding: var(--md-padding);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 140px;
+  position: sticky;
+  top: 20px;
+}
+.placeholderIcon { font-size: 28px; color: var(--greyed-text-color); opacity: 0.3; }
+.placeholderText { font-size: 12px; color: var(--greyed-text-color); text-align: center; }
+
+/* ---- Responsive ---- */
+@media (max-width: 900px) {
+  .panel {
+    width: 100%;
+    min-width: unset;
+    position: static;
+    max-height: none;
+  }
+  .placeholder {
+    width: 100%;
+    min-width: unset;
+    position: static;
+    min-height: 100px;
+  }
+  .statsGrid { grid-template-columns: repeat(3, 1fr); }
+  .statCardSpan { grid-column: span 2; }
+  .pauliGrid { overflow-x: auto; }
+}
+
+@media (max-width: 500px) {
+  .statsGrid { grid-template-columns: 1fr 1fr; }
+  .statCardSpan { grid-column: 1 / -1; }
+}

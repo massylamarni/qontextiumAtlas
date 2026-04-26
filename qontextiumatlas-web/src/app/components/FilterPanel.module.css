@@ -1,0 +1,291 @@
+.panel {
+  width: 240px;
+  min-width: 220px;
+  background-color: var(--element-color);
+  border: 1px solid var(--element-border-color);
+  border-radius: var(--md-border-radius);
+  display: flex;
+  flex-direction: column;
+  height: fit-content;
+  position: sticky;
+  top: 20px;
+  max-height: calc(100vh - 88px);
+  overflow: hidden;
+}
+
+.panelHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--element-border-color);
+  flex-shrink: 0;
+}
+
+.panelTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.panelTitle {
+  font-family: 'satoshi-black', sans-serif;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--greyed-text-color);
+}
+
+.activeBadge {
+  font-family: 'satoshi-black', sans-serif;
+  font-size: 9px;
+  color: #0a0a0a;
+  background: var(--signature-color);
+  border-radius: 10px;
+  padding: 1px 5px;
+  line-height: 1.4;
+}
+
+.resetBtn {
+  font-size: 10px;
+  color: var(--greyed-text-color);
+  cursor: pointer;
+  padding: 2px 7px;
+  border-radius: 4px;
+  border: 1px solid var(--element-border-color);
+  background: transparent;
+  transition: color 0.15s, border-color 0.15s;
+}
+.resetBtn:hover { color: var(--default-text-color); border-color: var(--greyed-text-color); }
+
+/* Scrollable filter area */
+.filters {
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 10px 14px;
+  gap: 10px;
+  flex: 1;
+}
+
+/* INT filter */
+.intFilter {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.filterRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.filterLabel {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--greyed-text-color);
+  font-family: 'satoshi-black', sans-serif;
+  transition: color 0.15s;
+}
+
+.filterLabelActive {
+  color: var(--signature-color);
+}
+
+.inputPair {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.inputWrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.inputHint {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--greyed-text-color);
+  opacity: 0.6;
+  padding-left: 2px;
+}
+
+.numInput {
+  width: 100%;
+  background: var(--background-color);
+  border: 1px solid var(--element-border-color);
+  border-radius: 6px;
+  padding: 6px 8px;
+  color: var(--default-text-color);
+  font-family: 'satoshi-medium', sans-serif;
+  font-size: 12px;
+  outline: none;
+  transition: border-color 0.15s;
+  -moz-appearance: textfield;
+}
+.numInput::-webkit-outer-spin-button,
+.numInput::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.numInput::placeholder { color: var(--greyed-text-color); font-size: 11px; }
+.numInput:focus { border-color: var(--signature-color); }
+
+.inputSep {
+  font-size: 11px;
+  color: var(--greyed-text-color);
+  flex-shrink: 0;
+  padding-bottom: 7px;
+}
+
+/* Divider */
+.divider {
+  height: 1px;
+  background: var(--element-border-color);
+  margin: 2px 0;
+}
+
+/* STR filter */
+.strFilter {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.strInput {
+  width: 100%;
+  background: var(--background-color);
+  border: 1px solid var(--element-border-color);
+  border-radius: 6px;
+  padding: 6px 10px;
+  color: var(--default-text-color);
+  font-family: 'satoshi-medium', sans-serif;
+  font-size: 12px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.strInput::placeholder { color: var(--greyed-text-color); }
+.strInput:focus { border-color: var(--signature-color); }
+
+.strHint {
+  font-size: 9px;
+  color: var(--greyed-text-color);
+  opacity: 0.6;
+  font-style: italic;
+}
+
+/* Toggle */
+.toggleRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.toggle {
+  width: 28px;
+  height: 15px;
+  border-radius: 8px;
+  background: var(--element-border-color);
+  position: relative;
+  cursor: pointer;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+.toggleOn { background: var(--signature-color); }
+
+.toggleKnob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--default-text-color);
+  transition: left 0.2s;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.4);
+}
+.toggleOn .toggleKnob { left: 15px; background: #0a0a0a; }
+
+/* Search button */
+.searchBtn {
+  margin: 0;
+  background: var(--signature-color);
+  color: #0a0a0a;
+  border: none;
+  border-top: 1px solid var(--element-border-color);
+  border-radius: 0 0 var(--md-border-radius) var(--md-border-radius);
+  padding: 11px;
+  font-family: 'satoshi-black', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  transition: opacity 0.15s;
+  flex-shrink: 0;
+}
+.searchBtn:hover:not(:disabled) { opacity: 0.85; }
+.searchBtnLoading { opacity: 0.6; cursor: not-allowed; }
+
+.spinner {
+  width: 12px; height: 12px;
+  border: 2px solid rgba(0,0,0,0.2);
+  border-top-color: #0a0a0a;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  flex-shrink: 0;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ---- Responsive ---- */
+@media (max-width: 900px) {
+  .panel {
+    width: 100%;
+    min-width: unset;
+    position: static;
+    max-height: none;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 0;
+  }
+  .panelHeader {
+    width: 100%;
+    border-bottom: 1px solid var(--element-border-color);
+  }
+  .filters {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 12px 14px;
+    width: 100%;
+  }
+  .intFilter {
+    width: calc(50% - 5px);
+    min-width: 130px;
+  }
+  .strFilter {
+    width: calc(50% - 5px);
+    min-width: 160px;
+  }
+  .divider { display: none; }
+  .toggleRow {
+    width: 100%;
+    padding: 4px 0;
+  }
+  .searchBtn {
+    border-radius: 0 0 var(--md-border-radius) var(--md-border-radius);
+  }
+}
+
+@media (max-width: 500px) {
+  .intFilter,
+  .strFilter { width: 100%; }
+}
