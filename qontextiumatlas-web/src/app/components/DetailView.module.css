@@ -199,20 +199,6 @@
   margin: 3px 0;
 }
 
-.negMarker {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--element-border-color);
-  border: 1px solid var(--greyed-text-color);
-  flex-shrink: 0;
-  margin-left: 4px;
-  cursor: default;
-}
-.negMarkerNeg {
-  background: rgba(224,85,85,0.3);
-  border-color: #e05555;
-}
 
 .noConf { font-size: 12px; color: var(--greyed-text-color); }
 .noConfHint {

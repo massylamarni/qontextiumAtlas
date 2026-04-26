@@ -25,12 +25,9 @@ function PauliCell({ label }) {
   return <div className={`${styles.pauliCell} ${pauliClass(label)}`}>{label}</div>;
 }
 
-function ConfGrid({ confStr, negCount }) {
+function ConfGrid({ confStr }) {
   const grid = useMemo(() => parseConf(confStr), [confStr]);
   if (!grid) return <span className={styles.noConf}>No configuration data</span>;
-
-  const negIndices = new Set();
-  for (let i = grid.length - negCount; i < grid.length; i++) negIndices.add(i);
 
   return (
     <div className={styles.gridOuter}>
@@ -47,10 +44,6 @@ function ConfGrid({ confStr, negCount }) {
             <div className={styles.pauliRow}>
               <span className={styles.ctxLabel}>c{i + 1}</span>
               {row.map((cell, j) => <PauliCell key={j} label={cell} />)}
-              <span
-                className={`${styles.negMarker} ${negIndices.has(i) ? styles.negMarkerNeg : ''}`}
-                title={negIndices.has(i) ? 'negative context' : 'positive context'}
-              />
             </div>
           </div>
         ))}
@@ -115,7 +108,7 @@ export default function DetailView({ result, onClose }) {
         <div className={styles.confSection}>
           <div className={styles.sectionLabel}>Configuration</div>
           {result.ctx_conf
-            ? <ConfGrid confStr={result.ctx_conf} negCount={result.neg_ctx_count ?? 0} />
+            ? <ConfGrid confStr={result.ctx_conf} />
             : <div className={styles.noConfHint}>Enable <em>Show configuration</em> in filters to see the Pauli grid.</div>
           }
         </div>
