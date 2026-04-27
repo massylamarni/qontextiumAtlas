@@ -18,27 +18,29 @@ export async function GET() {
 
     if (!res.ok) {
       return NextResponse.json(
-        { totalConfigs: 0, maxDegree: 0, maxQubits: 0, maxNegCtx: 0 },
-        { status: 200 }   // ← 200 au lieu de 502 pour pas alerter le client
+        { totalConfigs: 0, maxDegree: 0, maxQubits: 0, maxNegCtx: 0, maxCtxCount: 0 },
+        { status: 200 }
       );
     }
 
-    const data = await res.json().catch(() => ({}));
+    const data    = await res.json().catch(() => ({}));
     const results = data.results ?? [];
 
     return NextResponse.json({
       totalConfigs: data.count ?? 0,
-      maxDegree: results.length ? Math.max(...results.map(r => r.ctx_degree  ?? 0)) : 0,
-      maxQubits: results.length ? Math.max(...results.map(r => r.qubits_count ?? 0)) : 0,
-      maxNegCtx: results.length ? Math.max(...results.map(r => r.neg_ctx_count ?? 0)) : 0,
+      maxDegree:    results.length ? Math.max(...results.map(r => r.ctx_degree    ?? 0)) : 0,
+      maxQubits:    results.length ? Math.max(...results.map(r => r.qubits_count  ?? 0)) : 0,
+      maxNegCtx:    results.length ? Math.max(...results.map(r => r.neg_ctx_count ?? 0)) : 0,
+      maxCtxCount:  results.length ? Math.max(...results.map(r => r.ctx_count     ?? 0)) : 0,  
     });
 
   } catch {
     return NextResponse.json({
       totalConfigs: 0,
-      maxDegree: 0,
-      maxQubits: 0,
-      maxNegCtx: 0,
+      maxDegree:    0,
+      maxQubits:    0,
+      maxNegCtx:    0,
+      maxCtxCount:  0, 
     }, { status: 200 });
   }
 }

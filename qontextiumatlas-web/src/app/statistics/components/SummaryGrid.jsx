@@ -5,6 +5,7 @@ const CARDS = [
   { key: 'total',    label: 'Total Configs',  stat: 'totalConfigs' },
   { key: 'degree',   label: 'Max Degree',     stat: 'maxDegree'    },
   { key: 'qubits',   label: 'Max Qubits',     stat: 'maxQubits'    },
+  { key: 'ctx',      label: 'Max Ctx Count',  stat: 'maxCtxCount'  }, 
   { key: 'negative', label: 'Max Neg. Ctx',   stat: 'maxNegCtx'    },
 ];
 

@@ -5,19 +5,20 @@ import Nav from '../components/Nav';
 import SummaryGrid from './components/SummaryGrid';
 import DetailsTable from './components/DetailsTable';
 import DetailView from './../components/DetailView';
+
 export default function StatisticsPage() {
   const [selectedType, setSelectedType] = useState(null);
   const [stats, setStats] = useState({
     totalConfigs: 0,
-    maxDegree: 0,
-    maxQubits: 0,
-    maxNegCtx: 0,
+    maxDegree:    0,
+    maxQubits:    0,
+    maxNegCtx:    0,
+    maxCtxCount:  0, 
   });
   const [detailedData, setDetailedData] = useState([]);
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
 
-  // Fetch summary stats
   useEffect(() => {
     const fetchStats = async () => {
       try {
@@ -29,24 +30,28 @@ export default function StatisticsPage() {
           maxDegree:    data.maxDegree    || 0,
           maxQubits:    data.maxQubits    || 0,
           maxNegCtx:    data.maxNegCtx    || 0,
+          maxCtxCount:  data.maxCtxCount  || 0,
         });
-      } catch (err) {
-        console.error('Stats fetch error:', err);
+      } catch {
+        //
       }
     };
     fetchStats();
   }, []);
 
-  // Fetch detail rows when a card is selected
   useEffect(() => {
     if (!selectedType) { setDetailedData([]); return; }
+
     const metricMap = {
       degree:   'ctx_degree',
       negative: 'neg_ctx_count',
       total:    'ctx_count',
       qubits:   'qubits_count',
+      ctx:      'ctx_count',    
     };
+
     const metric = metricMap[selectedType];
+
     const fetchDetails = async () => {
       setLoadingDetails(true);
       try {
@@ -54,8 +59,8 @@ export default function StatisticsPage() {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
         setDetailedData(Array.isArray(data) ? data : []);
-      } catch (err) {
-        console.error('Detail fetch error:', err);
+      } catch {
+       
         setDetailedData([]);
       } finally {
         setLoadingDetails(false);
@@ -67,9 +72,8 @@ export default function StatisticsPage() {
   return (
     <div className={styles.layout}>
       <Nav />
-
       <main className={styles.main}>
-        {/* Hero */}
+
         <div className={styles.hero}>
           <div className={styles.eyebrow}>Statistics</div>
           <h1 className={styles.title}>QATLAS Statistics</h1>
@@ -80,16 +84,13 @@ export default function StatisticsPage() {
 
         <div className={styles.divider} />
 
-        {/* Summary cards — pass selectedType for active state */}
         <SummaryGrid
           stats={stats}
           onSelect={setSelectedType}
           selectedType={selectedType}
         />
-{/* Table + Detail side by side */}
-        <div className={styles.contentRow}>
 
-          {/* Table */}
+        <div className={styles.contentRow}>
           <div className={styles.tableCol}>
             <DetailsTable
               type={selectedType}
@@ -98,18 +99,15 @@ export default function StatisticsPage() {
               onRowClick={setSelectedRow}
             />
           </div>
-
-          {/* Detail panel — même style que la page search */}
           <div className={styles.detailCol}>
             <DetailView
               result={selectedRow}
               onClose={() => setSelectedRow(null)}
             />
           </div>
-
         </div>
-      </main>
 
+      </main>
     </div>
   );
 }
