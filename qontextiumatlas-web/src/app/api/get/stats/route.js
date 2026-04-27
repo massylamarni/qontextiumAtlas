@@ -1,37 +1,40 @@
 import { NextResponse } from 'next/server';
-import { connectToDatabase } from '@/lib/mongodb';
 
-export async function GET(req) {
+export const runtime = "nodejs";
+
+export async function GET() {
   try {
-    const db = await connectToDatabase();
-    const collection = db.collection('quantic_config');
+    const res = await fetch("http://localhost:8080/get", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        filters: ["ctx_degree=-:+"]
+      })
+    });
 
-    // Agrégation MongoDB pour récupérer le max de ctx_degree
-    const result = await collection.aggregate([
-  {
-    $group: {
-      _id: null,
-      totalConfigs: { $sum: 1 },
-      maxDegree: { $max: '$ctx_degree' },
-      maxNegCtx: { $max: '$neg_ctx_count' },
-      maxQubits: { $max: '$qubits_count' } 
-    }
-  }
-]).toArray();
-
-    if (result.length === 0) {
-      return NextResponse.json({
-        totalConfigs: 0,
-        maxDegree: 0,
-        maxNegCtx: 0,
-        maxHammingDistance: 0,
-        maxCtxCount: 0
-      });
+    if (!res.ok) {
+      throw new Error(`Backend error ${res.status}`);
     }
 
-    return NextResponse.json(result[0]);
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : {};
+
+    const results = data.results || [];
+
+    return NextResponse.json({
+      totalConfigs: data.count || 0,
+      maxDegree: results.length ? Math.max(...results.map(r => r.ctx_degree || 0)) : 0,
+      maxQubits: results.length ? Math.max(...results.map(r => r.qubits_count || 0)) : 0,
+      maxNegCtx: results.length ? Math.max(...results.map(r => r.neg_ctx_count || 0)) : 0
+    });
+
   } catch (err) {
-    console.error('Error getting statistics:', err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    console.error("Stats error:", err);
+    return NextResponse.json(
+      { error: err.message },
+      { status: 500 }
+    );
   }
 }

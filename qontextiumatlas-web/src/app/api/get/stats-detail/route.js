@@ -1,62 +1,42 @@
 import { NextResponse } from 'next/server';
-import { connectToDatabase } from '@/lib/mongodb';
 
-// export async function GET(req) {
-//   try {
-//     const url = new URL(req.url);
-//     const metric = url.searchParams.get('metric'); // 'ctx_degree', 'neg_ctx_count', etc.
-
-//     if (!metric) {
-//       return NextResponse.json({ error: 'Metric parameter required' }, { status: 400 });
-//     }
-
-//     const db = await connectToDatabase();
-//     const collection = db.collection('quantic_config');
-
-//     // Agrégation pour grouper par valeur de la métrique
-//     const result = await collection.aggregate([
-//       {
-//         $group: {
-//           _id: `$${metric}`,
-//           count: { $sum: 1 }
-//         }
-//       },
-//       {
-//         $sort: { _id: -1 } // Tri décroissant
-//       }
-//     ]).toArray();
-
-//     // Transformer le résultat
-//     const data = result.map(item => ({
-//       value: item._id,
-//       count: item.count
-//     }));
-
-//     return NextResponse.json(data);
-//   } catch (err) {
-//     console.error('Error getting detailed stats:', err);
-//     return NextResponse.json({ error: err.message }, { status: 500 });
-//   }
-// }
+export const runtime = "nodejs";
 
 export async function GET(req) {
   try {
     const url = new URL(req.url);
-    const metric = url.searchParams.get("metric");
+    const metric = url.searchParams.get("metric") || "ctx_degree";
 
-    const db = await connectToDatabase();
-    const collection = db.collection("quantic_config");
+    const res = await fetch("http://localhost:8080/get", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        filters: [`${metric}=-:+`],
+    	show_conf: true
+      })
+    });
 
-    const sortField = metric || "ctx_degree";
+    if (!res.ok) {
+      throw new Error(`Backend error ${res.status}`);
+    }
 
-    const data = await collection
-      .find({})
-      .sort({ [sortField]: -1 })
-      .limit(100)
-      .toArray();
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : {};
 
-    return NextResponse.json(data);
+    let results = data.results || [];
+
+    // 
+    results.sort((a, b) => (b[metric] || 0) - (a[metric] || 0));
+
+    return NextResponse.json(results);
+
   } catch (err) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    console.error("Details error:", err);
+    return NextResponse.json(
+      { error: err.message },
+      { status: 500 }
+    );
   }
 }
