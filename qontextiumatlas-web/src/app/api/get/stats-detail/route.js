@@ -13,7 +13,7 @@ export async function GET(req) {
     const res = await fetch("http://localhost:8080/get", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ filters: [`${metric}=-:+`], show_conf: true }),
+      body: JSON.stringify({ filters: [`${metric}=g:l`, "ctx_count=l:g"] , show_conf: true }),
       signal: controller.signal
     });
 
@@ -24,8 +24,7 @@ export async function GET(req) {
     }
 
     const data    = await res.json().catch(() => ({}));
-    const results = (data.results ?? [])
-      .sort((a, b) => (b?.[metric] ?? 0) - (a?.[metric] ?? 0));
+    const results = (data.results ?? []);
 
     return NextResponse.json(results);
 
