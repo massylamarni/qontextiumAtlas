@@ -21,7 +21,14 @@
 ./build/o --get [<filter>=<min>:<max>]* [--conf]
 ```
 
-Ranges use integer values. Use `-` for `INT_MIN` and `+` for `INT_MAX`.
+Ranges use integer values.
+
+Use `-` for `INT_MIN` and `+` for `INT_MAX`.
+
+Use `l` for `lowest`, `g` for `greatest`, `l:g` for ascending sort and `g:l` for descending sort. `l` and `g` can be combined with `-`/`+` and integer values for sorting.
+
+Note that the order of filters is important, `ctx_degree=:g ctx_count=l:` is not the same as `ctx_count=l: ctx_degree=:g`.
+
 
 **Examples:**
 ```bash
@@ -33,6 +40,12 @@ Ranges use integer values. Use `-` for `INT_MIN` and `+` for `INT_MAX`.
 
 # Unbounded range (INT_MIN to INT_MAX)
 ./build/o --get ctx_degree=-:+ ctx_count=1:6
+
+# Greatest ctx_degree with the lowest ctx_count
+./build/o --get ctx_degree=:g ctx_count=l:
+
+# Two-key sort, ascending ctx_degree until 3 and descending ctx_count
+./build/o --get ctx_degree=l:3 ctx_count=g:l
 ```
 
 ---

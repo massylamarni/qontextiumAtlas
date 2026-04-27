@@ -25,10 +25,27 @@ typedef struct {
 #undef _X_STR
 } ctx_conf_info;
 
+typedef enum {
+  SORT_NONE,
+  SORT_ASC,
+  SORT_DESC,
+} sort_dir_t;
+
 typedef struct {
   int min;
   int max;
+  bool use_lowest;
+  bool use_greatest;
+  sort_dir_t sort_dir;
+  bool invalid;
+  int arg_index;
 } s_interval;
+
+typedef struct {
+  int field_offset[2]; // offsetof the field within ctx_conf_info
+  int dir[2];          // +1 asc, -1 desc
+  int keys;            // 1 or 2
+} sort_ctx_t;
 
 typedef struct {
   unsigned char id[16];
@@ -65,6 +82,8 @@ search_filters init_search_filters();
 void search_ctx_configs_info(const char *dir_name, size_t *out_count,
                              search_filters sf,
                              ctx_conf_info configs_info[128]);
+search_filters parse_search_filters(int argc, char *argv[]);
+s_interval parse_interval(const char *val, int arg_index);
 
 /* Public */
 void search_ctx_configs(const char *dir_name, size_t *out_count,

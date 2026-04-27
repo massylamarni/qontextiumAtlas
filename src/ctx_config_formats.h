@@ -7,7 +7,7 @@
 #include <unistd.h>
 
 typedef enum { PAULI_MATRIX, HYPERGRAM, GRAPH } ctx_format;
-typedef enum { PAULI_X, PAULI_Y, PAULI_Z } pauli_operator;
+typedef enum { PAULI_I, PAULI_X, PAULI_Y, PAULI_Z } pauli_operator;
 
 typedef struct {
   pauli_operator *ops;

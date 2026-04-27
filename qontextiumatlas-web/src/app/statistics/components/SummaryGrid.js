@@ -1,7 +1,8 @@
 import SummaryCard from "./SummaryCard"; 
+import styles from './../statistics.module.css';
 export default function SummaryGrid({ stats, onSelect }) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+    <div className={styles.cardGrid}>
 
       <SummaryCard
         title="Total Configs"

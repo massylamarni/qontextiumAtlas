@@ -1,5 +1,6 @@
 'use client';
-
+import styles from './statistics.module.css';
+import Nav from '../components/Nav';
 import { useState, useEffect } from "react";
 import SummaryGrid from "./components/SummaryGrid";
 import DetailsTable from "./components/DetailsTable";
@@ -82,159 +83,60 @@ export default function StatisticsPage() {
     fetchDetails();
   }, [selectedType]);
 
-  return (
-  <main className="min-h-screen bg-gradient-to-b from-zinc-950 via-zinc-950 to-black text-white px-6 py-10">
+return (
+  <div className={styles.layout}>
+    <Nav />
 
-    <div className="max-w-7xl mx-auto space-y-10">
+    <main className={styles.main}>
 
-      {/* HEADER */}
-      <div className="relative">
+      {/* HERO (identique About) */}
+      <div className={styles.hero}>
+        <div className={styles.eyebrow}>Statistics</div>
 
-        <h1 className="text-4xl font-extrabold tracking-tight">
-          <span className="text-white">Statistics</span>{" "}
-          <span className="text-green-400">Dashboard</span>
+        <h1 className={styles.title}>
+          QATLAS Statistics
         </h1>
 
-        <p className="text-zinc-500 mt-2 text-sm">
+        <p className={styles.sub}>
           Quantum configuration analytics & context visualization
         </p>
-
-        {/* glow line */}
-        <div className="absolute -bottom-3 left-0 w-40 h-[2px] bg-green-500/40 blur-sm"></div>
-
       </div>
 
-      {/* SUMMARY CARD */}
-      <div className="
-        bg-zinc-900/60
-        backdrop-blur-md
-        border border-zinc-800
-        rounded-2xl
-        p-6
-        shadow-[0_0_30px_rgba(0,0,0,0.4)]
-      ">
+      <div className={styles.divider} />
+
+      {/* SUMMARY */}
+      <div className={styles.cardGrid}>
         <SummaryGrid stats={stats} onSelect={setSelectedType} />
       </div>
 
-      {/* TABLE CARD */}
-      <div className="
-        bg-zinc-900/60
-        backdrop-blur-md
-        border border-zinc-800
-        rounded-2xl
-        p-6
-        shadow-[0_0_40px_rgba(34,197,94,0.05)]
-        relative overflow-hidden
-      ">
-
-        {/* subtle glow background */}
-        <div className="absolute inset-0 bg-green-500/5 blur-3xl pointer-events-none"></div>
-
-        <div className="relative">
-          <DetailsTable
-            type={selectedType}
-            data={detailedData}
-            onRowClick={setSelectedRow}
-          />
-        </div>
-
+      {/* TABLE */}
+      <div className={styles.card}>
+        <DetailsTable
+          type={selectedType}
+          data={detailedData}
+          onRowClick={setSelectedRow}
+        />
       </div>
 
-    </div>
+    </main>
 
-    {/* MODAL (TON CODE INCHANGÉ MAIS COHÉRENT) */}
+    {/* MODAL (tu peux garder Tailwind ici pour l’instant) */}
     {selectedRow && (
       <div
-        className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50"
+        className="fixed inset-0 bg-black/70 flex items-center justify-center z-50"
         onClick={(e) => {
           if (e.target === e.currentTarget) setSelectedRow(null);
         }}
       >
-        <div className="
-          relative w-[460px]
-          bg-zinc-950
-          border border-green-500/20
-          rounded-2xl
-          shadow-[0_0_50px_rgba(34,197,94,0.15)]
-          p-6
-        ">
+        <div className="bg-zinc-900 border rounded-xl p-6 w-[460px]">
+          <h2 className="text-lg font-bold mb-4">Configuration details</h2>
 
-          {/* glow */}
-          <div className="absolute inset-0 bg-green-500/5 blur-2xl rounded-2xl pointer-events-none"></div>
+          <pre>{selectedRow.ctx_conf}</pre>
 
-          {/* HEADER */}
-          <div className="flex justify-between items-center mb-4 relative">
-            <h2 className="text-lg font-bold text-green-400">
-              Configuration details
-            </h2>
-
-            <button
-              onClick={() => setSelectedRow(null)}
-              className="text-zinc-400 hover:text-green-400 transition"
-            >
-              ✕
-            </button>
-          </div>
-
-          {/* BODY */}
-          <div className="space-y-3 text-sm relative">
-
-            <div className="p-3 bg-zinc-900 border border-zinc-800 rounded-lg">
-              <p className="text-xs text-green-500 mb-1">CTX CONF</p>
-              <pre className="font-mono text-green-300 whitespace-pre-wrap break-words">
-                {selectedRow.ctx_conf ?? "-"}
-              </pre>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-
-              <div className="p-3 bg-zinc-900 border border-zinc-800 rounded-lg">
-                <p className="text-zinc-500 text-xs">Degree</p>
-                <p className="text-white font-semibold">
-                  {selectedRow.ctx_degree ?? "-"}
-                </p>
-              </div>
-
-              <div className="p-3 bg-zinc-900 border border-zinc-800 rounded-lg">
-                <p className="text-zinc-500 text-xs">Qubits</p>
-                <p className="text-white font-semibold">
-                  {selectedRow.qubits_count ?? "-"}
-                </p>
-              </div>
-
-              <div className="p-3 bg-zinc-900 border border-zinc-800 rounded-lg">
-                <p className="text-zinc-500 text-xs">Ctx count</p>
-                <p className="text-white font-semibold">
-                  {selectedRow.ctx_count ?? "-"}
-                </p>
-              </div>
-
-            </div>
-
-          </div>
-
-          {/* FOOTER */}
-          <div className="mt-5 flex justify-end relative">
-            <button
-              onClick={() => setSelectedRow(null)}
-              className="
-                px-4 py-2
-                bg-green-500/10
-                text-green-400
-                border border-green-500/30
-                rounded-lg
-                hover:bg-green-500/20
-                transition
-              "
-            >
-              Close
-            </button>
-          </div>
-
+          <button onClick={() => setSelectedRow(null)}>Close</button>
         </div>
       </div>
     )}
-
-  </main>
+  </div>
 );
 }

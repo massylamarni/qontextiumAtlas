@@ -1,0 +1,216 @@
+.layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--foreground-color);
+}
+
+.main {
+  max-width: 740px;
+  margin: 0 auto;
+  padding: 40px 28px 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  width: 100%;
+}
+
+.eyebrow {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--signature-color);
+  font-family: 'satoshi-black', sans-serif;
+  margin-bottom: 10px;
+}
+
+.title {
+  font-family: 'satoshi-black', sans-serif;
+  font-size: 28px;
+  color: var(--default-text-color);
+  line-height: 1.2;
+  margin: 0 0 12px;
+}
+
+.sub {
+  font-size: 14px;
+  color: var(--greyed-text-color);
+  line-height: 1.7;
+  margin: 0;
+  max-width: 580px;
+}
+
+.divider {
+  height: 1px;
+  background: var(--element-border-color);
+}
+
+/* Steps */
+.steps {
+  display: flex;
+  flex-direction: column;
+}
+
+.step {
+  display: flex;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--element-border-color);
+}
+.step:last-child { border-bottom: none; }
+
+.stepNum {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--signature-color-filter);
+  border: 1px solid var(--signature-color-filter-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'satoshi-black', sans-serif;
+  font-size: 11px;
+  color: var(--signature-color);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.stepContent {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.stepTitle {
+  font-family: 'satoshi-black', sans-serif;
+  font-size: 13px;
+  color: var(--default-text-color);
+}
+
+.stepDesc {
+  font-size: 12px;
+  color: var(--greyed-text-color);
+  line-height: 1.6;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+}
+
+.pills {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.pill {
+  background: var(--background-color);
+  border: 1px solid var(--element-border-color);
+  border-radius: 4px;
+  padding: 1px 7px;
+  font-size: 10px;
+  color: var(--signature-color);
+  white-space: nowrap;
+}
+
+/* Format section */
+.formatSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.formatTitle {
+  font-family: 'satoshi-black', sans-serif;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--greyed-text-color);
+}
+
+.formatGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.formatCard {
+  background: var(--element-color);
+  border: 1px solid var(--element-border-color);
+  border-radius: var(--md-border-radius);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.formatExt {
+  font-size: 14px;
+  font-family: 'satoshi-black', sans-serif;
+  color: var(--signature-color);
+  letter-spacing: 0.05em;
+}
+
+.formatDesc {
+  font-size: 11px;
+  color: var(--greyed-text-color);
+  line-height: 1.6;
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btnPrimary {
+  background: var(--signature-color);
+  color: #0a0a0a;
+  border: none;
+  border-radius: 6px;
+  padding: 9px 20px;
+  font-family: 'satoshi-black', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  transition: opacity 0.15s;
+}
+.btnPrimary:hover { opacity: 0.85; }
+
+.btnGhost {
+  background: transparent;
+  color: var(--default-text-color);
+  border: 1px solid var(--element-border-color);
+  border-radius: 6px;
+  padding: 9px 20px;
+  font-family: 'satoshi-medium', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  transition: border-color 0.15s;
+}
+.btnGhost:hover { border-color: var(--greyed-text-color); }
+
+@media (max-width: 600px) {
+  .formatGrid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 900px) {
+  .main { padding: 28px 20px 48px; }
+  .title { font-size: 22px; }
+  .formatGrid { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 600px) {
+  .main { padding: 24px 16px 40px; }
+  .title { font-size: 20px; }
+  .formatGrid { grid-template-columns: 1fr; }
+}

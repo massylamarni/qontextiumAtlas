@@ -11,6 +11,8 @@ const ctx_format qtxium_to_ctx_format(const char *s) {
 
 char pauli_to_char(pauli_operator op) {
   switch (op) {
+  case PAULI_I:
+    return 'I';
   case PAULI_X:
     return 'X';
   case PAULI_Y:
@@ -24,6 +26,8 @@ char pauli_to_char(pauli_operator op) {
 
 pauli_operator char_to_pauli(char c) {
   switch (c) {
+  case 'I':
+    return PAULI_I;
   case 'X':
     return PAULI_X;
   case 'Y':
@@ -55,4 +59,7 @@ void free_pauli_matrix(pauli_matrix *m) {
     free(m->pauli_rows[i].ops);
   }
   free(m->pauli_rows);
+}
+
+void pauli_to_hypergram(pauli_matrix pm, hypergram hg){
 }

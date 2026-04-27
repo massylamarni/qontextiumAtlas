@@ -1,0 +1,124 @@
+.layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--foreground-color);
+}
+
+.main {
+  max-width: 740px;
+  margin: 0 auto;
+  padding: 40px 28px 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  width: 100%;
+}
+
+/* HERO */
+.eyebrow {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--signature-color);
+  font-family: 'satoshi-black', sans-serif;
+  margin-bottom: 10px;
+}
+
+.title {
+  font-family: 'satoshi-black', sans-serif;
+  font-size: 28px;
+  color: var(--default-text-color);
+  line-height: 1.2;
+  margin: 0 0 12px;
+}
+
+.sub {
+  font-size: 14px;
+  color: var(--greyed-text-color);
+  line-height: 1.7;
+  margin: 0;
+  max-width: 580px;
+}
+
+.divider {
+  height: 1px;
+  background: var(--element-border-color);
+}
+.section {
+  background: var(--element-color);
+  border: 1px solid var(--element-border-color);
+  border-radius: var(--md-border-radius);
+  padding: 16px;
+}
+.grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+  border-radius: var(--md-border-radius);
+  border: 1px solid var(--element-border-color);
+}
+
+/* Grid comme About */
+.cardGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* Card comme About */
+.card {
+  background: var(--element-color);
+  border: 1px solid var(--element-border-color);
+  border-radius: var(--md-border-radius);
+  padding: 16px;
+}
+
+/* Texte card */
+.cardTitle {
+  font-family: 'satoshi-black', sans-serif;
+  font-size: 12px;
+  color: var(--greyed-text-color);
+  margin-bottom: 4px;
+}
+
+.cardDesc {
+  font-family: 'satoshi-black', sans-serif;
+  font-size: 20px;
+  color: var(--default-text-color);
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.table th {
+  text-align: left;
+  font-size: 10px;
+  text-transform: uppercase;
+  color: var(--greyed-text-color);
+  padding: 8px;
+  border-bottom: 1px solid var(--element-border-color);
+}
+
+.table td {
+  padding: 8px;
+  border-bottom: 1px solid var(--element-border-color);
+}
+
+.table tr:hover {
+  background: var(--background-color);
+  cursor: pointer;
+}
+
+.empty {
+  font-size: 12px;
+  color: var(--greyed-text-color);
+  text-align: center;
+  padding: 20px 0;
+}
