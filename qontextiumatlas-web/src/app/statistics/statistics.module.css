@@ -55,8 +55,8 @@
 /* ---- Summary cards grid ---- */
 .cardGrid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
+  grid-template-columns: repeat(5, 1fr);  /* ← 5 colonnes pour 5 cards */
+  gap: 8px;
 }
 
 /* Individual summary card */
@@ -64,12 +64,12 @@
   background: var(--element-color);
   border: 1px solid var(--element-border-color);
   border-radius: var(--md-border-radius);
-  padding: 14px 16px;
+  padding: 10px 12px;          /* ← réduit : était 14px 16px */
   cursor: pointer;
   transition: border-color 0.15s, background 0.15s;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;                    /* ← réduit : était 6px */
 }
 
 .summaryCard:hover {
@@ -92,7 +92,7 @@
 
 .summaryCardValue {
   font-family: 'satoshi-black', sans-serif;
-  font-size: 26px;
+  font-size: 20px;             /* ← réduit : était 26px */
   color: var(--default-text-color);
   line-height: 1;
 }
@@ -372,26 +372,18 @@
 .detailCol {
   flex-shrink: 0;
 }
-
 @media (max-width: 900px) {
-  .contentRow {
-    flex-direction: column;
-  }
-  .detailCol {
-    width: 100%;
-  }
-}
-/* ---- Responsive ---- */
-@media (max-width: 900px) {
-  .main { padding: 24px 16px 40px; }
-  .cardGrid { grid-template-columns: 1fr 1fr; }
+  .main    { padding: 24px 16px 40px; }
+  .cardGrid { grid-template-columns: repeat(3, 1fr); }  /* ← 3 colonnes */
 }
 
-@media (max-width: 500px) {
-  .title { font-size: 22px; }
+@media (max-width: 600px) {
+  .cardGrid { grid-template-columns: repeat(2, 1fr); }  /* ← 2 colonnes */
+  .summaryCardValue { font-size: 18px; }
+}
+
+@media (max-width: 400px) {
   .cardGrid { grid-template-columns: 1fr 1fr; }
-  .summaryCardValue { font-size: 20px; }
+  .title    { font-size: 22px; }
   .tableScroll { max-height: 320px; }
 }
-
-
