@@ -44,8 +44,8 @@ Note that the order of filters is important, `ctx_degree=:g ctx_count=l:` is not
 # Greatest ctx_degree with the lowest ctx_count
 ./build/o --get ctx_degree=:g ctx_count=l:
 
-# Two-key sort, ascending ctx_degree until 3 and descending ctx_count
-./build/o --get ctx_degree=l:3 ctx_count=g:l
+# Two-key sort, descending ctx_degree and ascending ctx_count until 6
+./build/o --get ctx_degree=g:l ctx_count=l:6
 ```
 
 ---
