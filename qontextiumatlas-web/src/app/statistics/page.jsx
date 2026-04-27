@@ -4,7 +4,7 @@ import styles from './statistics.module.css';
 import Nav from '../components/Nav';
 import SummaryGrid from './components/SummaryGrid';
 import DetailsTable from './components/DetailsTable';
-import DetailView from './components/DetailView';
+import DetailView from './../components/DetailView';
 export default function StatisticsPage() {
   const [selectedType, setSelectedType] = useState(null);
   const [stats, setStats] = useState({
