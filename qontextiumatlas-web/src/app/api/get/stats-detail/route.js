@@ -4,39 +4,32 @@ export const runtime = "nodejs";
 
 export async function GET(req) {
   try {
-    const url = new URL(req.url);
+    const url    = new URL(req.url);
     const metric = url.searchParams.get("metric") || "ctx_degree";
+
+    const controller = new AbortController();
+    const timeout    = setTimeout(() => controller.abort(), 5000);
 
     const res = await fetch("http://localhost:8080/get", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        filters: [`${metric}=-:+`],
-    	show_conf: true
-      })
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ filters: [`${metric}=-:+`], show_conf: true }),
+      signal: controller.signal
     });
 
+    clearTimeout(timeout);
+
     if (!res.ok) {
-      throw new Error(`Backend error ${res.status}`);
+      return NextResponse.json([], { status: 200 });
     }
 
-    const text = await res.text();
-    const data = text ? JSON.parse(text) : {};
-
-    let results = data.results || [];
-
-    // 
-    results.sort((a, b) => (b[metric] || 0) - (a[metric] || 0));
+    const data    = await res.json().catch(() => ({}));
+    const results = (data.results ?? [])
+      .sort((a, b) => (b?.[metric] ?? 0) - (a?.[metric] ?? 0));
 
     return NextResponse.json(results);
 
-  } catch (err) {
-    console.error("Details error:", err);
-    return NextResponse.json(
-      { error: err.message },
-      { status: 500 }
-    );
+  } catch {
+    return NextResponse.json([], { status: 200 });
   }
 }

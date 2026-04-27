@@ -357,7 +357,30 @@
   white-space: pre;
   line-height: 1.6;
 }
+/* Layout table + detail côte à côte */
+.contentRow {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
 
+.tableCol {
+  flex: 1;
+  min-width: 0;
+}
+
+.detailCol {
+  flex-shrink: 0;
+}
+
+@media (max-width: 900px) {
+  .contentRow {
+    flex-direction: column;
+  }
+  .detailCol {
+    width: 100%;
+  }
+}
 /* ---- Responsive ---- */
 @media (max-width: 900px) {
   .main { padding: 24px 16px 40px; }
@@ -370,3 +393,5 @@
   .summaryCardValue { font-size: 20px; }
   .tableScroll { max-height: 320px; }
 }
+
+

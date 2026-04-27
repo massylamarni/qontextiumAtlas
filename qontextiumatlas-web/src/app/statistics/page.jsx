@@ -4,7 +4,7 @@ import styles from './statistics.module.css';
 import Nav from '../components/Nav';
 import SummaryGrid from './components/SummaryGrid';
 import DetailsTable from './components/DetailsTable';
-
+import DetailView from './components/DetailView';
 export default function StatisticsPage() {
   const [selectedType, setSelectedType] = useState(null);
   const [stats, setStats] = useState({
@@ -86,55 +86,30 @@ export default function StatisticsPage() {
           onSelect={setSelectedType}
           selectedType={selectedType}
         />
+{/* Table + Detail side by side */}
+        <div className={styles.contentRow}>
 
-        {/* Detail table */}
-        <DetailsTable
-          type={selectedType}
-          data={detailedData}
-          loading={loadingDetails}
-          onRowClick={setSelectedRow}
-        />
+          {/* Table */}
+          <div className={styles.tableCol}>
+            <DetailsTable
+              type={selectedType}
+              data={detailedData}
+              loading={loadingDetails}
+              onRowClick={setSelectedRow}
+            />
+          </div>
+
+          {/* Detail panel — même style que la page search */}
+          <div className={styles.detailCol}>
+            <DetailView
+              result={selectedRow}
+              onClose={() => setSelectedRow(null)}
+            />
+          </div>
+
+        </div>
       </main>
 
-      {/* Modal */}
-      {selectedRow && (
-        <div
-          className={styles.modalOverlay}
-          onClick={(e) => { if (e.target === e.currentTarget) setSelectedRow(null); }}
-        >
-          <div className={styles.modal}>
-            <div className={styles.modalHeader}>
-              <span className={styles.modalTitle}>Configuration details</span>
-              <button className={styles.modalClose} onClick={() => setSelectedRow(null)}>✕</button>
-            </div>
-
-            <div className={styles.modalBody}>
-              {/* Stats mini-grid */}
-              <div className={styles.modalStatsGrid}>
-                {[
-                  { label: 'Ctx Degree',  value: selectedRow.ctx_degree   ?? '—' },
-                  { label: 'Qubits',      value: selectedRow.qubits_count === -1 ? '—' : (selectedRow.qubits_count ?? '—') },
-                  { label: 'Neg. Ctx',    value: selectedRow.neg_ctx_count ?? '—' },
-                  { label: 'Contexts',    value: selectedRow.ctx_count     ?? '—' },
-                ].map(({ label, value }) => (
-                  <div key={label} className={styles.modalStatCard}>
-                    <div className={styles.modalStatLabel}>{label}</div>
-                    <div className={styles.modalStatVal}>{value}</div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Configuration string */}
-              {selectedRow.ctx_conf && (
-                <div className={styles.modalConfSection}>
-                  <div className={styles.modalConfLabel}>Configuration</div>
-                  <pre className={styles.modalConfPre}>{selectedRow.ctx_conf}</pre>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

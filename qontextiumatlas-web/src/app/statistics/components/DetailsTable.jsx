@@ -7,6 +7,53 @@ const TYPE_LABELS = {
   negative: 'Max Neg. Ctx',
 };
 
+const COLUMNS = [
+  { key: 'ctx_degree',            label: 'Ctx Degree' },
+  { key: 'ctx_count',             label: 'Contexts' },
+  { key: 'neg_ctx_count',         label: 'Neg. Ctx' },
+  { key: 'qubits_count',          label: 'Qubits' },
+  { key: 'best_hamming_distance', label: 'Hamming' },
+  { key: 'observable_count',      label: 'Observables' },
+  { key: 'dimension',             label: 'Dimension' },
+  { key: 'format',                label: 'Format' },
+  { key: 'author_name',           label: 'Author' },
+];
+
+function CellValue({ colKey, value }) {
+  // Valeur vide ou -1
+  if (value === null || value === undefined || value === -1) {
+    return <span style={{ color: 'var(--greyed-text-color)' }}>—</span>;
+  }
+
+  // Ctx Degree → badge coloré
+  if (colKey === 'ctx_degree') {
+    return (
+      <span
+        className={styles.badge}
+        data-degree={Math.min(value, 5)}
+      >
+        {value}
+      </span>
+    );
+  }
+
+  // Author → signature color
+  if (colKey === 'author_name') {
+    return (
+      <span style={{ color: 'var(--signature-color)', fontFamily: "'satoshi-black', sans-serif" }}>
+        {value}
+      </span>
+    );
+  }
+
+  // Neg ctx → rouge
+  if (colKey === 'neg_ctx_count') {
+    return <span style={{ color: '#f87171' }}>{value}</span>;
+  }
+
+  return value;
+}
+
 export default function DetailsTable({ type, data, loading, onRowClick }) {
   if (!type) {
     return (
@@ -18,6 +65,7 @@ export default function DetailsTable({ type, data, loading, onRowClick }) {
 
   return (
     <div className={styles.tableCard}>
+
       <div className={styles.tableCardHeader}>
         <span className={styles.tableCardTitle}>
           {TYPE_LABELS[type] ?? type} — top results
@@ -43,44 +91,45 @@ export default function DetailsTable({ type, data, loading, onRowClick }) {
       {!loading && data.length > 0 && (
         <div className={styles.tableScroll}>
           <table className={styles.table}>
+
             <thead>
               <tr>
                 <th className={styles.th}>#</th>
-                <th className={styles.th}>Ctx Degree</th>
-                <th className={styles.th}>Qubits</th>
-                <th className={styles.th}>Neg. Ctx</th>
-                <th className={styles.th}>Contexts</th>
-                <th className={styles.th}>Author</th>
+                {COLUMNS.map(col => (
+                  <th key={col.key} className={styles.th}>
+                    {col.label}
+                  </th>
+                ))}
               </tr>
             </thead>
+
             <tbody>
               {data.map((item, index) => (
-                <tr key={index} className={styles.tr} onClick={() => onRowClick(item)}>
-                  <td className={styles.td} style={{ color: 'var(--greyed-text-color)', fontSize: '11px' }}>
+                <tr
+                  key={index}
+                  className={styles.tr}
+                  onClick={() => onRowClick(item)}
+                >
+                  <td
+                    className={styles.td}
+                    style={{ color: 'var(--greyed-text-color)', fontSize: '11px' }}
+                  >
                     {index + 1}
                   </td>
-                  <td className={styles.td}>
-                    <span
-                      className={styles.badge}
-                      data-degree={Math.min(item.ctx_degree ?? 0, 5)}
-                    >
-                      {item.ctx_degree ?? '—'}
-                    </span>
-                  </td>
-                  <td className={styles.td}>
-                    {item.qubits_count === -1 ? <span style={{ color: 'var(--greyed-text-color)' }}>—</span> : item.qubits_count ?? '—'}
-                  </td>
-                  <td className={styles.td}>{item.neg_ctx_count ?? '—'}</td>
-                  <td className={styles.td}>{item.ctx_count ?? '—'}</td>
-                  <td className={styles.td} style={{ color: 'var(--signature-color)', fontFamily: "'satoshi-black', sans-serif" }}>
-                    {item.author_name || <span style={{ color: 'var(--greyed-text-color)' }}>—</span>}
-                  </td>
+
+                  {COLUMNS.map(col => (
+                    <td key={col.key} className={styles.td}>
+                      <CellValue colKey={col.key} value={item[col.key]} />
+                    </td>
+                  ))}
                 </tr>
               ))}
             </tbody>
+
           </table>
         </div>
       )}
+
     </div>
   );
 }
