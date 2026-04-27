@@ -390,6 +390,9 @@ void search_ctx_configs(const char *dir_name, size_t *out_count,
 }
 
 void fprint_ctx_conf_info(FILE *f, ctx_conf_info conf_info) {
+  char uuid_str[37];
+  uuid_unparse(conf_info.id, uuid_str);
+  fprintf(f, "id: %s\n", uuid_str);
   fprintf(f, "format: %s\n", ctx_format_to_qtxium[conf_info.format]);
 
 #define X(kind, type, name) _X_##kind(name)
