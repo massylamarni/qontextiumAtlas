@@ -10,7 +10,7 @@ export async function GET() {
     const res = await fetch("http://localhost:8080/get", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ filters: ["ctx_degree=-:+"] }),
+      body: JSON.stringify({ filters: ["ctx_degree=g:l", "ctx_count=l:g"] }),
       signal: controller.signal
     });
 
